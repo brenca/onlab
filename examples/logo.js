@@ -6,6 +6,25 @@ const a = require('awaiting')
 const acc = 'àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœűŰőŐ'
 const spec = '\\\\.,\\/#!$%@&<>\\^\\*;:{}=\\-\\+_`~()\'"'
 
+class RuntimeError extends Error {
+  constructor(message, position, extra) {
+    const _constructMessage = (message, position, extra) => {
+      if (position) {
+        message += ' - at :' + (position.line + 1) + ':' + (position.char + 1)
+      }
+      if (extra) {
+        message += '\n' + extra
+      }
+      return message
+    }
+    
+    super(_constructMessage(message, position, extra))
+    this.name = 'RuntimeError'
+    this.position = position
+    this.extra = extra
+  }
+}
+
 Array.prototype.toString = function () {
   return '[' + this.join(' ') + ']'
 }
@@ -29,32 +48,35 @@ class Logo extends Language {
   constructor(handler) {
     super()
     this._handler = handler
-    this._drawDelay = 100
+    this._drawDelay = 10
+    this._executionDelay = 0
+    this._executing = false
     
     this.lexer.addTokenClasses([
       new Lexer.TokenClass('int', /[0-9]+(?![0-9]*\.[0-9]+)/),
       new Lexer.TokenClass('float', /[0-9]+\.[0-9]+/),
-      new Lexer.TokenClass('bool', /(true|false)/i),
-      new Lexer.TokenClass('not', /not/i),
-      new Lexer.TokenClass('and', /and/i),
-      new Lexer.TokenClass('or', /or/i),
-      new Lexer.TokenClass('draw-cmd', 
-        /(fd|forward|bk|backward|rt|right|lt|left)/i),
-      new Lexer.TokenClass('objparam-cmd', /(firstput|lastput|item|member\?)/i),
-      new Lexer.TokenClass('strparam-cmd', /(make|local)/i),
-      new Lexer.TokenClass('general-cmd', /(list\?|number\?|word\?|output|thing)/i),
-      new Lexer.TokenClass('moreparam-cmd', /(print)/i),
-      new Lexer.TokenClass('twoormoreparam-cmd', /(list|word|sentence)/i),
-      new Lexer.TokenClass('list-cmd', /(setpc|first|last|butfirst|butlast|uppercase|lowercase|count|empty\?|run)/i),
-      new Lexer.TokenClass('math-cmd', /(abs|sin|cos|tan|arcsin|arccos|arctan|exp|integer|int|log10|log|random|round|sqrt|wait)/i),
-      new Lexer.TokenClass('twomath-cmd', /(power|pow)/i),
-      new Lexer.TokenClass('if-cmd', /if/i),
-      new Lexer.TokenClass('for-cmd', /(for|repeat)/i),
-      new Lexer.TokenClass('noparam-cmd', /(pi|euler|date|time|stop)/i),
-      new Lexer.TokenClass('word', new RegExp('"[a-z' + acc + spec + '0-9]*', 'i')),
-      new Lexer.TokenClass('var', new RegExp(':[a-z' + acc + '0-9]+', 'i')),
-      new Lexer.TokenClass('literal', new RegExp('[a-z' + acc + '0-9]+', 'i')),
-      new Lexer.TokenClass('char', /\S/)
+      new Lexer.TokenClass('bool', /(?:\b)(true|false)(?!\w)/iu),
+      new Lexer.TokenClass('not', /(?:\b)not(?!\w)/iu),
+      new Lexer.TokenClass('and', /(?:\b)and(?!\w)/iu),
+      new Lexer.TokenClass('or', /(?:\b)or(?!\w)/iu),
+      new Lexer.TokenClass('draw-cmd', /(?:\b)(fd|forward|bk|backward|rt|right|lt|left)(?!\w)/iu),
+      new Lexer.TokenClass('objparam-cmd', /(?:\b)(firstput|lastput|item|member\?)(?!\w)/iu),
+      new Lexer.TokenClass('strparam-cmd', /(?:\b)(make|local)(?!\w)/iu),
+      new Lexer.TokenClass('general-cmd', /(?:\b)(list\?|number\?|word\?|output|thing|setpencolor|setpenwidth|setpen|setpc|towards)(?!\w)/iu),
+      new Lexer.TokenClass('moreparam-cmd', /(?:\b)(print)(?!\w)/iu),
+      new Lexer.TokenClass('twoormoreparam-cmd', /(?:\b)(list|word|sentence)(?!\w)/iu),
+      new Lexer.TokenClass('list-cmd', /(?:\b)(first|last|butfirst|butlast|uppercase|lowercase|count|empty\?|run|setposition)(?!\w)/iu),
+      new Lexer.TokenClass('math-cmd', /(?:\b)(abs|sin|cos|tan|arcsin|arccos|arctan|exp|integer|int|log10|log|random|round|sqrt|wait|setx|sety|setheading)(?!\w)/iu),
+      new Lexer.TokenClass('twomath-cmd', /(?:\b)(power|pow)(?!\w)/iu),
+      new Lexer.TokenClass('if-cmd', /(?:\b)if(?!\w)/iu),
+      new Lexer.TokenClass('for-cmd', /(?:\b)(for|repeat)(?!\w)/iu),
+      new Lexer.TokenClass('to-cmd', /(?:\b)to(?!\w)/iu),
+      new Lexer.TokenClass('end', /(?:\b)end(?!\w)/iu),
+      new Lexer.TokenClass('noparam-cmd', /(?:\b)(pi|date|time|stop|heading|hideturtle|showturtle|shown\?|position|xpos|ypos|home|clean|clearscreen|cs|pendown|pd|penup|pu|penwidth|pencolor|pc|pen|e)(?!\w)/iu),
+      new Lexer.TokenClass('word', new RegExp('"[a-z' + acc + spec + '0-9]*', 'iu')),
+      new Lexer.TokenClass('var', new RegExp(':[a-z' + acc + '0-9]+', 'iu')),
+      new Lexer.TokenClass('literal', new RegExp('[a-z' + acc + '0-9]+', 'iu')),
+      new Lexer.TokenClass('char', /\S/iu)
     ])
     
     this.parser.fromBNF(
@@ -62,7 +84,7 @@ class Logo extends Language {
       <SubProgram> ::= "[" <Program> "]"
       <OptionalSubProgram> ::= <SubProgram> | ""
       <List> ::= "[" <ListInner> "]"
-      <Expression> ::= <Token-var> | <ListCommand> | <GeneralCommand> | <ObjectParamCommand> | <StringParamCommand> | <MathCommand> | <TwoMathCommand> | <NoparamCommand> | <DrawCommand> | <For> | <If> | <MoreParamCommand> | <Group>
+      <Expression> ::= <Token-var> | <ListCommand> | <GeneralCommand> | <ObjectParamCommand> | <StringParamCommand> | <MathCommand> | <TwoMathCommand> | <NoparamCommand> | <DrawCommand> | <For> | <If> | <To> | <MoreParamCommand> | <Group> | <UserDefined>
       <Parameter> ::= <Bool> | <ListOrString>
       <GeneralCommand> ::= <Token-general-cmd> <Parameter>
       <ListCommand> ::= <Token-list-cmd> <Parameter>
@@ -72,13 +94,16 @@ class Logo extends Language {
       <TwoMathCommand> ::= <Token-twomath-cmd> <Math> <Math>
       <NoparamCommand> ::= <Token-noparam-cmd>
       <ListOrString> ::= <String> | <List>
-      <String> ::= <Token-word> | <Token-literal>
+      <String> ::= <Token-word>
       <DrawCommand> ::= <Token-draw-cmd> <Math>
       <For> ::= <Token-for-cmd> <Math> <SubProgram>
       <If> ::= <Token-if-cmd> <Bool> <SubProgram> <OptionalSubProgram>
+      <To> ::= <Token-to-cmd> <Token-literal> <Variables> <Program> <Token-end>
+      <Variables> ::= <Variables> <Token-var> | ""
       <ListInner> ::= <ListInner> <Parameter> | ""
       <MoreParamCommand> ::= <Token-moreparam-cmd> <Parameter> | <Token-twoormoreparam-cmd> <Parameter> <Parameter>
-      <Parameters> ::= <Parameter> <Parameters> | ""
+      <UserDefined> ::= <Token-literal> <Parameters>
+      <Parameters> ::= <Parameter> <Parameters> | "" | <Token-EOF>
       
       <Group> ::= "(" <more-cmd> <Parameters> ")"
       <more-cmd> ::= <Token-twoormoreparam-cmd> | <Token-moreparam-cmd> | ""
@@ -99,14 +124,118 @@ class Logo extends Language {
       `
     )
     
-    this._scopes = [{}]
+    this._procedures = []
+    this._scopes = [{
+      variables: {},
+      stack: []
+    }]
     
     this._actions = {
+      'UserDefined': async (node, parent) => {
+        let name = await this.executeOne(node.children[0], node)
+        let result = undefined
+        
+        let flattenParameters = (node) => {
+          let list = []
+          
+          for (let child of node.children) {
+            if (child.rule.name !== 'Parameters' 
+             && child.rule.name !== 'Token-EOF') {
+              list.push(child)
+            } else {
+              list = list.concat(flattenParameters(child))
+            }
+          }
+          
+          return list
+        }
+        
+        let parameters = []
+        if (node.children[1].rule.name === 'Parameters') {
+          parameters = flattenParameters(node.children[1])
+        }
+        
+        if (this._procedures[name]) {
+          const proc = clone(this._procedures[name])
+          let param = []
+          let children = parameters.splice(0, proc.parameters.length)
+          for (let child of children) {
+            let val = await this.executeOne(child, node)
+            if (val instanceof Object && val.constructor !== Array) return val
+            param.push(val)
+          }
+          
+          let variables = {}
+          for (let i = 0; i < proc.parameters.length; i++) {
+            variables[proc.parameters[i]] = param[i]
+          }
+          
+          this._scopes.push({
+            variables,
+            stack: []
+          })
+          let body = clone(proc.body)
+          body.parent = node
+          result = await this.executeOne(body)
+          this._scopes.pop()
+          
+          if (parameters[0] && parameters[0].rule.value) {
+            throw new Parser.SyntaxError('Unexpected token "' + 
+              (parameters[0].rule.name || parameters[0].rule.value) + '"',
+              parameters[0].rule.position
+            )
+          }
+        } else {
+          result = {
+            value: name
+          }
+        }
+        
+        let index = parent.children.indexOf(node)
+        if (index > -1) {
+          Array.prototype.splice.apply(
+            parent.children, 
+            [index + 1, 0].concat(parameters.map(param => {
+              param.parent = parent
+              return param
+            }))
+          )
+        }
+        
+        return result ? result.value : undefined
+      },
+      'To': async (node) => {
+        node.children = node.children.slice(1, -1)
+        let parameters = []
+        for (let child of node.children) {
+          if (child.rule.name !== 'Program') {
+            parameters.push(await this.executeOne(child, node))
+          } else {
+            parameters.push(child)
+          }
+        }
+        
+        if (parameters.length === 3) {
+          this._procedures[parameters[0]] = {
+            name: parameters[0],
+            parameters: parameters[1],
+            body: parameters[2]
+          }
+        } else {
+          this._procedures[parameters[0]] = {
+            name: parameters[0],
+            parameters: [],
+            body: parameters[1]
+          }
+        }
+      },
       'For': async (node) => {
         let parameters = []
         for (let child of node.children) {
           if (child.rule.name !== 'SubProgram') {
-            parameters.push(await this.executeOne(child))
+            let val = await this.executeOne(child, node)
+            if (val instanceof Object && val.constructor !== Array) return val
+            parameters.push(val)
           } else {
             parameters.push(child)
           }
@@ -114,6 +243,7 @@ class Logo extends Language {
         
         if (parameters.length === 3) {
           for (let i = 0; i < parameters[1]; i++) {
+            this._putToStack(parameters[0].toLowerCase(), i)
             let val = await this.executeOne(parameters[2])
             if (val instanceof Object && val.constructor !== Array) return val
           }
@@ -123,12 +253,15 @@ class Logo extends Language {
         let parameters = []
         for (let child of node.children) {
           if (child.rule.name !== 'SubProgram') {
-            parameters.push(await this.executeOne(child))
+            let val = await this.executeOne(child, node)
+            if (val instanceof Object && val.constructor !== Array) return val
+            parameters.push(val)
           } else {
             parameters.push(child)
           }
         }
         
+        this._putToStack(parameters[0].toLowerCase(), parameters[1])
         if (parameters.length === 4) {
           let val = parameters[1] ? await this.executeOne(parameters[2])
             : await this.executeOne(parameters[3])
@@ -143,21 +276,39 @@ class Logo extends Language {
         node.children = node.children.slice(1,-1)
         let parameters = []
         for (let child of node.children) {
-          parameters.push(await this.executeOne(child))
+          let val = await this.executeOne(child, node)
+          if (val instanceof Object && val.constructor !== Array) return val
+          parameters.push(val)
         }
         
         if (parameters.length > 1) {
           let ret = await this._actions['MoreParamCommand'](node)
           if (ret) return ret[0]
         } else {
-          // TODO: syntax error, more elements in group
+          return Promise.reject(
+            new RuntimeError(
+              'Too many group elements ', 
+              node.position, 
+              this._getStackTrace()
+            )
+          )
         }
         return parameters[0].length === 1 ? parameters[0][0] : parameters[0]
+      },
+      'Variables': async (node) => {
+        let parameters = []
+        for (let child of node.children) {
+          parameters.push(child.rule.value.slice(1))
+        }
+        
+        return parameters
       },
       'MoreParamCommand': async (node) => {
         let parameters = []
         for (let child of node.children) {
-          parameters.push(await this.executeOne(child))
+          let val = await this.executeOne(child, node)
+          if (val instanceof Object && val.constructor !== Array) return val
+          parameters.push(val)
         }
         
         let actions = {
@@ -169,9 +320,18 @@ class Logo extends Language {
           },
           'word': (params) => {
             let out = ''
-            params.forEach(x => { //TODO: possible throw error
-              out += x.toString()
-            })
+            for (let i = 0; i < params.length; i++) {
+              if (typeof params[i] !== 'string') {
+                return Promise.reject(
+                  new RuntimeError(
+                    'Parameter is not a word',
+                    node.position,
+                    this._getStackTrace()
+                  )
+                )
+              }
+              out += params[i]
+            }
             return out
           },
           'sentence': (params) => {
@@ -179,11 +339,13 @@ class Logo extends Language {
           }
         }
         
-        let param
         if (parameters.length === 3) {
+          this._putToStack(parameters[0].toLowerCase(), 
+            [parameters[1], parameters[2]])
           return actions[parameters[0].toLowerCase()](
             [parameters[1], parameters[2]])
         } else {
+          this._putToStack(parameters[0].toLowerCase(), [parameters[1]])
           return actions[parameters[0].toLowerCase()]([parameters[1]])
         }
       },
@@ -191,23 +353,28 @@ class Logo extends Language {
         let list = []
         
         for (let child of node.children) {
+          let val = await this.executeOne(child, node)
+          if (val instanceof Object && val.constructor !== Array) return val
           if (child.rule.name !== 'Parameters') {
-            list.push(await this.executeOne(child))
+            list.push(val)
           } else {
-            list = list.concat(await this.executeOne(child))
+            list = list.concat(val)
           }
         }
         
         return list
       },
       'Program': async (node) => {
-        if (node.parent === undefined) this._scopes.push({})
+        if (node.parent === undefined) this._scopes.push({
+          variables: {},
+          stack: []
+        })
         
         for (let child of node.children) {
-          let val = await this.executeOne(child)
+          let val = await this.executeOne(child, node)
           if (val instanceof Object && val.constructor !== Array) {
             if (node.parent === undefined) {
-              this._scopes.pop({})
+              this._scopes.pop()
               return val.value
             } else {
               return val
@@ -215,18 +382,20 @@ class Logo extends Language {
           }
         }
         
-        if (node.parent === undefined) this._scopes.pop({})
+        if (node.parent === undefined) this._scopes.pop()
       },
       'SubProgram': async (node) => {
         for (let child of node.children) {
-          let val = await this.executeOne(child)
+          let val = await this.executeOne(child, node)
           if (val instanceof Object && val.constructor !== Array) return val
         }
       },
       'GeneralCommand': async (node) => {
         let parameters = []
         for (let child of node.children) {
-          parameters.push(await this.executeOne(child))
+          let val = await this.executeOne(child, node)
+          if (val instanceof Object && val.constructor !== Array) return val
+          parameters.push(val)
         }
         
         let actions = {
@@ -247,17 +416,35 @@ class Logo extends Language {
           },
           'thing': async (x) => {
             return this._getValue(x)
+          },
+          'setpen': async (x) => {
+            this._handler.drawing = x[0]
+            this._handler.color = x[1]
+          },
+          'setpc': async (x) => {
+            this._handler.color = x
+          },
+          'setpenwidth': async (x) => {
+            this._handler.width = x
+          },
+          'towards': async (x) => {
+            return Math.atan2(
+              x[0] - this._handler.x, 
+              x[1] - this._handler.y
+            ) / (2.0 * Math.PI) * 360.0
           }
         }
+        actions['setpencolor'] = actions['setpc']
         
+        this._putToStack(parameters[0].toLowerCase(), parameters[1])
         return await actions[parameters[0].toLowerCase()](parameters[1])
       },
-      'NoparamCommand': (node) => {
+      'NoparamCommand': (node) => {        
         let actions = {
           'pi': () => {
             return Math.PI
           },
-          'euler': () => {
+          'e': () => {
             return Math.E
           },
           'date': () => {
@@ -272,15 +459,68 @@ class Logo extends Language {
               return: true,
               value: null
             }
+          },
+          'heading': () => {
+            return this._handler.heading
+          },
+          'hideturtle': () => {
+            this._handler.shown = false
+          },
+          'showturtle': () => {
+            this._handler.shown = true
+          },
+          'shown?': () => {
+            return this._handler.shown
+          },
+          'position': () => {
+            return [this._handler.x, this._handler.y]
+          },
+          'xpos': () => {
+            return this._handler.x
+          },
+          'ypos': () => {
+            return this._handler.y
+          },
+          'home': () => {
+            this._handler.resetTurtle()
+          },
+          'clean': () => {
+            this._handler.eraseCanvas()
+          },
+          'clearscreen': () => {
+            this._handler.eraseCanvas()
+            this._handler.resetTurtle()
+          },
+          'pendown': () => {
+            this._handler.drawing = true
+          },
+          'penup': () => {
+            this._handler.drawing = false
+          },
+          'penwidth': () => {
+            return this._handler.width
+          },
+          'pencolor': () => {
+            return this._handler.color
+          },
+          'pen': () => {
+            return [this._handler.drawing, this._handler.color]
           }
         }
+        actions['cs'] = actions['clearscreen']
+        actions['pd'] = actions['pendown']
+        actions['pu'] = actions['penup']
+        actions['pc'] = actions['pencolor']
         
+        this._putToStack(node.rule.value.toLowerCase())
         return actions[node.rule.value.toLowerCase()]()
       },
       'MathCommand': async (node) => {
         let parameters = []
         for (let child of node.children) {
-          parameters.push(await this.executeOne(child))
+          let val = await this.executeOne(child, node)
+          if (val instanceof Object && val.constructor !== Array) return val
+          parameters.push(val)
         }
         
         let mathActions = {
@@ -328,17 +568,28 @@ class Logo extends Language {
           },
           'wait': async (m) => {
             await a.delay(m)
+          },
+          'setx': async (m) => {
+            this._handler.x = m
+          },
+          'sety': async (m) => {
+            this._handler.y = m
+          },
+          'setheading': async (m) => {
+            this._handler.heading = m
           }
         }
-        
         mathActions['integer'] = mathActions['int']
         
+        this._putToStack(parameters[0].toLowerCase(), parameters[1])
         return await mathActions[parameters[0].toLowerCase()](parameters[1])
       },
       'TwoMathCommand': async (node) => {
         let parameters = []
         for (let child of node.children) {
-          parameters.push(await this.executeOne(child))
+          let val = await this.executeOne(child, node)
+          if (val instanceof Object && val.constructor !== Array) return val
+          parameters.push(val)
         }
         
         let mathActions = {
@@ -346,16 +597,19 @@ class Logo extends Language {
             return Math.pow(a, b)
           }
         }
-        
         mathActions['power'] = mathActions['pow']
         
+        this._putToStack(parameters[0].toLowerCase(), 
+          [parameters[1], parameters[2]])
         return mathActions[parameters[0].toLowerCase()](
           parameters[1], parameters[2])
       },
       'ObjectParamCommand': async (node) => {
         let parameters = []
         for (let child of node.children) {
-          parameters.push(await this.executeOne(child))
+          let val = await this.executeOne(child, node)
+          if (val instanceof Object && val.constructor !== Array) return val
+          parameters.push(val)
         }
         
         let objectParamActions = {
@@ -377,13 +631,17 @@ class Logo extends Language {
           }
         }
         
+        this._putToStack(parameters[0].toLowerCase(), 
+          [parameters[1], parameters[2]])
         return objectParamActions[parameters[0].toLowerCase()](
           parameters[1],parameters[2])
       },
       'StringParamCommand': async (node) => {
         let parameters = []
         for (let child of node.children) {
-          parameters.push(await this.executeOne(child))
+          let val = await this.executeOne(child, node)
+          if (val instanceof Object && val.constructor !== Array) return val
+          parameters.push(val)
         }
         
         let stringParamActions = {
@@ -391,23 +649,24 @@ class Logo extends Language {
             this._setValue(s, v)
           },
           'local': (s, v) => {
-            this._scopes[this._scopes.length - 1][s] = v
+            this._scopes[this._scopes.length - 1].variables[s] = v
           }
         }
         
+        this._putToStack(parameters[0].toLowerCase(), 
+          [parameters[1], parameters[2]])
         return stringParamActions[parameters[0].toLowerCase()](
           parameters[1],parameters[2])
       },
       'ListCommand': async (node) => {
         let parameters = []
         for (let child of node.children) {
-          parameters.push(await this.executeOne(child))
+          let val = await this.executeOne(child, node)
+          if (val instanceof Object && val.constructor !== Array) return val
+          parameters.push(val)
         }
         
         let listActions = {
-          'setpc': async (l) => {
-            return l
-          },
           'first': async (l) => {
             return l[0]
           },
@@ -454,16 +713,24 @@ class Logo extends Language {
           },
           'run': async (l) => {
             let str = l.join(' ')
-            return await this.execute(str)
+            let result = await this.execute(str, true)
+            return result
+          },
+          'setposition': async (l) => {
+            this._handler.x = l[0]
+            this._handler.y = l[1]
           }
         }
         
+        this._putToStack(parameters[0].toLowerCase(), parameters[1])
         return await listActions[parameters[0].toLowerCase()](parameters[1])
       },
       'List': async (node) => {
         let parameters = []
         for (let child of node.reducedChildren()) {
-          parameters.push(await this.executeOne(child))
+          let val = await this.executeOne(child, node)
+          if (val instanceof Object && val.constructor !== Array) return val
+          parameters.push(val)
         }
         
         return parameters[0] ? parameters[0] : []
@@ -472,10 +739,12 @@ class Logo extends Language {
         let list = []
         
         for (let child of node.children) {
+          let val = await this.executeOne(child, node)
+          if (val instanceof Object && val.constructor !== Array) return val
           if (child.rule.name !== 'ListInner') {
-            list.push(await this.executeOne(child))
+            list.push(val)
           } else {
-            list = list.concat(await this.executeOne(child))
+            list = list.concat(val)
           }
         }
         
@@ -484,7 +753,9 @@ class Logo extends Language {
       'Math': async (node) => {        
         let parameters = []
         for (let child of node.children) {
-          parameters.push(await this.executeOne(child))
+          let val = await this.executeOne(child, node)
+          if (val instanceof Object && val.constructor !== Array) return val
+          parameters.push(val)
         }
         
         let mathActions = {
@@ -501,7 +772,9 @@ class Logo extends Language {
       'MathFactor': async (node) => {
         let parameters = []
         for (let child of node.reducedChildren()) {
-          parameters.push(await this.executeOne(child))
+          let val = await this.executeOne(child, node)
+          if (val instanceof Object && val.constructor !== Array) return val
+          parameters.push(val)
         }
         
         return parameters[0]
@@ -509,7 +782,9 @@ class Logo extends Language {
       'MathGroup': async (node) => {
         let parameters = []
         for (let child of node.reducedChildren()) {
-          parameters.push(await this.executeOne(child))
+          let val = await this.executeOne(child, node)
+          if (val instanceof Object && val.constructor !== Array) return val
+          parameters.push(val)
         }
         
         return parameters[0]
@@ -517,7 +792,9 @@ class Logo extends Language {
       'MathTerm': async (node) => {        
         let parameters = []
         for (let child of node.children) {
-          parameters.push(await this.executeOne(child))
+          let val = await this.executeOne(child, node)
+          if (val instanceof Object && val.constructor !== Array) return val
+          parameters.push(val)
         }
         
         let mathActions = {
@@ -537,7 +814,9 @@ class Logo extends Language {
       'MaybeSignedMathFactor': async (node) => {
         let parameters = []
         for (let child of node.children) {
-          parameters.push(await this.executeOne(child))
+          let val = await this.executeOne(child, node)
+          if (val instanceof Object && val.constructor !== Array) return val
+          parameters.push(val)
         }
         
         if (parameters.length === 1) {
@@ -553,7 +832,9 @@ class Logo extends Language {
       'Bool': async (node) => {
         let parameters = []
         for (let child of node.children) {
-          parameters.push(await this.executeOne(child))
+          let val = await this.executeOne(child, node)
+          if (val instanceof Object && val.constructor !== Array) return val
+          parameters.push(val)
         }
         
         return parameters[0] || parameters[2]
@@ -561,7 +842,9 @@ class Logo extends Language {
       'BoolAND': async (node) => {
         let parameters = []
         for (let child of node.children) {
-          parameters.push(await this.executeOne(child))
+          let val = await this.executeOne(child, node)
+          if (val instanceof Object && val.constructor !== Array) return val
+          parameters.push(val)
         }
         
         return parameters[0] && parameters[2]
@@ -569,7 +852,9 @@ class Logo extends Language {
       'BoolNOT': async (node) => {
         let parameters = []
         for (let child of node.children) {
-          parameters.push(await this.executeOne(child))
+          let val = await this.executeOne(child, node)
+          if (val instanceof Object && val.constructor !== Array) return val
+          parameters.push(val)
         }
         
         return !parameters[1]
@@ -577,7 +862,9 @@ class Logo extends Language {
       'BoolCOMP': async (node) => {
         let parameters = []
         for (let child of node.children) {
-          parameters.push(await this.executeOne(child))
+          let val = await this.executeOne(child, node)
+          if (val instanceof Object && val.constructor !== Array) return val
+          parameters.push(val)
         }
         
         let boolActions = {
@@ -594,7 +881,9 @@ class Logo extends Language {
       'BoolEQ': async (node) => {
         let parameters = []
         for (let child of node.children) {
-          parameters.push(await this.executeOne(child))
+          let val = await this.executeOne(child, node)
+          if (val instanceof Object && val.constructor !== Array) return val
+          parameters.push(val)
         }
         
         let boolActions = {
@@ -611,7 +900,9 @@ class Logo extends Language {
       'BoolFactor': async (node) => {
         let parameters = []
         for (let child of node.reducedChildren()) {
-          parameters.push(await this.executeOne(child))
+          let val = await this.executeOne(child, node)
+          if (val instanceof Object && val.constructor !== Array) return val
+          parameters.push(val)
         }
         
         return parameters[0]
@@ -620,21 +911,23 @@ class Logo extends Language {
         await a.delay(this._drawDelay)
         let parameters = []
         for (let child of node.children) {
-          parameters.push(await this.executeOne(child))
+          let val = await this.executeOne(child, node)
+          if (val instanceof Object && val.constructor !== Array) return val
+          parameters.push(val)
         }
         
         let drawActions = {
           'fd': (a) => {
-            this._handler('forward', a)
+            this._handler.move(a)
           },
           'bk': (a) => {
-            this._handler('back', a)
+            this._handler.move(-a)
           },
           'lt': (a) => {
-            this._handler('left', a)
+            this._handler.turn(-a)
           },
           'rt': (a) => {
-            this._handler('right', a)
+            this._handler.turn(a)
           }
         }
         drawActions['forward'] = drawActions['fd']
@@ -642,6 +935,7 @@ class Logo extends Language {
         drawActions['right'] = drawActions['rt']
         drawActions['left'] = drawActions['lt']
         
+        this._putToStack(parameters[0].toLowerCase(), parameters[1])
         drawActions[parameters[0].toLowerCase()](parameters[1])
       }
     }
@@ -675,24 +969,45 @@ class Logo extends Language {
   
   _getValue(str) {
     for (let i = this._scopes.length - 1; i >= 0; i--) {
-      if (this._scopes[i][str] !== undefined) return this._scopes[i][str]
+      if (this._scopes[i].variables[str] !== undefined) 
+        return this._scopes[i].variables[str]
     }
+    
+    throw new RuntimeError('Undefined variable "' + str + '"')
   }
   
   _setValue(str, val) {
     for (let i = this._scopes.length - 1; i >= 0; i--) {
-      if (this._scopes[i][str] !== undefined) {
-        this._scopes[i][str] = val
+      if (this._scopes[i].variables[str] !== undefined) {
+        this._scopes[i].variables[str] = val
         return
       }
     }
     
-    this._scopes[this._scopes.length - 1][str] = val
+    this._scopes[this._scopes.length - 1].variables[str] = val
   }
   
-  async executeOne(node) { 
+  _putToStack(name, parameters) {
+    this._scopes[this._scopes.length - 1].stack.push({
+      name, parameters
+    })
+  }
+  
+  _getStackTrace() {
+    return this._scopes[this._scopes.length - 1].stack
+  }
+  
+  async executeOne(node, parent) {
+    await a.delay(this._executionDelay)
+    if (!this._executing) {
+      return {
+        return: true,
+        value: null
+      }
+    }
+
     if (this._actions[node.rule.name]) {
-      return await this._actions[node.rule.name](node)
+      return await this._actions[node.rule.name](node, parent)
     } else if (node.rule.class){
       if (this._parses[node.rule.class.name]) {
         return await this._parses[node.rule.class.name](node)
@@ -700,13 +1015,34 @@ class Logo extends Language {
         return node.rule.value
       }
     } else {
-      console.log(node);
+      return Promise.reject(new RuntimeError(
+        'Unimplemented procedure "' + node.rule.name + '"',
+        node.position
+      ))
     }
   }
   
-  async execute(code) {
-    let ast = this.buildAST(code)
-    return await this.executeOne(ast[0])
+  async execute(code, noreset = false) {
+    if (!noreset) {
+      this._scopes = [{
+        variables: {},
+        stack: []
+      }]
+    }
+    
+    if (this._executing && !noreset) {
+      return new RuntimeError('Execution in progress')
+    } else {
+      if (!noreset) this._executing = true
+      let ast = this.buildAST(code)
+      let ret = await this.executeOne(ast[0])
+      if (!noreset) this._executing = false
+      return ret
+    }
+  }
+  
+  async terminate() {
+    this._executing = false
   }
 }
 
