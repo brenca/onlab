@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="stylesheet" href="./style.css">
+    <script type="text/javascript" src="./ace/ace.js"></script>
+  </head>
+  <body>
+    <div class="cell editor">
+      <pre id="editor">
+to előre :e :h
+    fd :e 
+    local "asd 0
+    to dsa
+      output 30
+    end
+    for 10 [make "asd :asd + 1 
+    if :asd == 5 
+        [output :asd] 
+        [wait 100 print :asd]
+    ]
+end
+make "f [1 1]
+print fibonacci 10
+to fibonacci :n
+    if (count :f) + 1 > :n [output (item :n :f)]
+    local "x (fibonacci :n - 1)
+    local "y (fibonacci :n - 2)
+    // print (:x / :y)
+    make "f (lastput (:x + :y) :f)
+    output (:x + :y)
+end
+
+// make "z 1
+// repeat 4 [print fibonacci :z make "z :z + 1]
+// print :f
+előre előre 10 10 10
+print fibonacci fibonacci 2
+      </pre>
+    </div>
+    <div class="cell">
+      <canvas id="canvas" width="500" height="500">
+    </div>
+    <script type="text/javascript">
+      require('./renderer.js')
+    </script>
+  </body>
+</html>
