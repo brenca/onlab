@@ -3,12 +3,30 @@
   <head>
     <meta charset="utf-8">
     <title></title>
+    <link href="https://fonts.googleapis.com/css?family=Droid+Sans+Mono" rel="stylesheet">
     <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
     <script type="text/javascript" src="./ace/ace.js"></script>
   </head>
   <body>
-    <div class="cell editor">
-      <pre id="editor">
+    <div class="wrapper">
+      <div class="navbar">
+        <div class="left">
+          <span class="glyphicon glyphicon-console"></span>Logo.js
+        </div>
+        <div class="center">
+          <span id="save" class="glyphicon glyphicon-floppy-save controller"></span>
+          <span id="open" class="glyphicon glyphicon-floppy-open controller"></span>
+        </div>
+        <div class="right">
+          <span id="playpause" class="glyphicon glyphicon-play controller"></span>
+          <span id="stop" class="glyphicon glyphicon-stop controller disabled"></span>
+          <span class="glyphicon glyphicon-flash"></span>
+          <input id="delay" type="range" min="0" max="50" step="0.25" value="0"></input>
+        </div>
+      </div>
+      <div class="editor">
+        <pre id="editor">
 to előre :e :h
     fd :e 
     local "asd 0
@@ -35,12 +53,24 @@ end
 // make "z 1
 // repeat 4 [print fibonacci :z make "z :z + 1]
 // print :f
-előre előre 10 10 10
-print fibonacci fibonacci 2
-      </pre>
-    </div>
-    <div class="cell">
-      <canvas id="canvas" width="500" height="500">
+// előre előre 10 10 10
+// print fibonacci fibonacci 2
+repeat 360 [fd 1 rt 1]
+        </pre>
+      </div>
+      <div class="canvas">
+        <div id="turtle"></div>
+        <canvas id="canvas" width="400" height="400">
+      </div>
+      <div class="console">
+        <div class="console-wrapper">
+          <div class="out"></div>
+          <div class="in">
+            <span class="glyphicon glyphicon-console prompt"></span>
+            <input id="console" type="text" name="" value="" placeholder="Tell me what to do...">
+          </div>
+        </div>
+      </div>
     </div>
     <script type="text/javascript">
       require('./renderer.js')

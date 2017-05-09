@@ -1,23 +1,71 @@
-const { remote } = require('electron')
-// const Logo = remote.require('./lib/logo')
+const { dialog } = require('electron').remote
+const fs = require('fs-extra')
 const Logo = require('../lib/logo')
 const logo = new Logo()
 window.logo = logo
 
-// logo.on('move', (from, to) => {
-//   console.log('move', from, to)
-// })
-// 
-// logo.on('turn', (heading) => {
-//   console.log('turn', heading)
-// })
-// 
-// logo.on('erase', () => {
-//   console.log('erase')
-// })
+let exec = async (editor) => {
+  try {
+    editor.resetErrors()
+    await logo.execute(editor.getValue())
+  } catch (e) {
+    if (e.position) {
+      editor.getSession().setAnnotations([{
+        row: e.position.line,
+        column: e.position.char,
+        text: e.message,
+        type: 'error'
+      }])
+      
+      editor.session._errorMarker = editor.session.addMarker(
+        new Range(
+          e.position.line,
+          e.position.char,
+          e.position.line,
+          e.position.char + e.position.length - 1
+        ),
+        "logo-error", 
+        "text"
+      )
+    }
+  }
+}
+
+let open = (editor) => {
+  let file = dialog.showOpenDialog({
+    title: 'Open a file',
+    filters: [{ name: 'Logo.js files', extensions: ['logo'] }],
+    properties: ['openFile']
+  })
+  
+  if (file !== undefined) {
+    fs.readFile(file[0], 'utf8', (err, data) => {
+      if (err) throw err
+      editor.setValue(data)
+      editor.clearSelection()
+    })
+  }
+}
+
+let save = (editor) => {
+  let file = dialog.showSaveDialog({
+    title: 'Save to a file',
+    filters: [{ name: 'Logo.js files', extensions: ['logo'] }]
+  })
+  
+  if (file !== undefined) {
+    fs.writeFile(file, editor.getValue(), 'utf8', err => {
+      if (err) throw err
+    })
+  }
+}
 
 logo.on('print', (what) => {
-  console.log('print', what)
+  let console = document.querySelector('.console .out')
+  let time = new Date().toTimeString().replace(/.*(\d{2}:\d{2}):\d{2}.*/, '$1')
+  console.innerHTML += `[${time}]&nbsp;>&nbsp;${what} <br>`
+  let consoleWrapper = document.querySelector('.console .console-wrapper')
+  consoleWrapper.scrollTop = consoleWrapper.scrollHeight
 })
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -26,6 +74,61 @@ document.addEventListener('DOMContentLoaded', () => {
   editor.getSession().setMode("ace/mode/logo")
   editor.heatmap = []
   const Range = window.ace.require("ace/range").Range
+  
+  document.querySelector('#delay').addEventListener('input', e => {
+    logo.delay = e.target.value
+  })
+  
+  logo.on('execution-started', () => {
+    document.querySelector('#playpause').classList.remove('glyphicon-play')
+    document.querySelector('#playpause').classList.add('glyphicon-pause')
+    document.querySelector('#stop').classList.remove('disabled')
+  })
+  
+  logo.on('execution-paused', () => {
+    document.querySelector('#playpause').classList.remove('glyphicon-pause')
+    document.querySelector('#playpause').classList.add('glyphicon-play')
+  })
+  
+  logo.on('execution-resumed', () => {
+    document.querySelector('#playpause').classList.remove('glyphicon-play')
+    document.querySelector('#playpause').classList.add('glyphicon-pause')
+  })
+  
+  logo.on('execution-stopped', () => {
+    document.querySelector('#playpause').classList.remove('glyphicon-pause')
+    document.querySelector('#playpause').classList.add('glyphicon-play')
+    document.querySelector('#stop').classList.add('disabled')
+  })
+  
+  document.querySelector('#playpause').addEventListener('click', e => {
+    if (e.target.classList.contains('glyphicon-pause')) {
+      logo.pause()
+    } else if (!logo.executing) {
+      exec(editor)
+    } else {
+      logo.resume()
+    }
+  })
+  
+  document.querySelector('#stop').addEventListener('click', e => {
+    logo.terminate()
+  })
+  
+  document.querySelector('#open').addEventListener('click', e => {
+    open(editor)
+  })
+  
+  document.querySelector('#save').addEventListener('click', e => {
+    save(editor)
+  })
+  
+  document.querySelector('#console').addEventListener('keyup', e => {
+    if (e.keyCode == 13) {
+      logo.execute(e.target.value)
+      e.target.value = ''
+    }
+  })
   
   let addToHeatmap = (newheat) => {
     if (editor.heatmap.length === 1) {
@@ -44,19 +147,35 @@ document.addEventListener('DOMContentLoaded', () => {
     editor.heatmap = []
   }
   
+  let moveTurtle = (x, y) => {
+    let turtle = document.querySelector('#turtle')
+    turtle.style.left = x + 'px'
+    turtle.style.top = y + 'px'
+  }
+  
+  let rotateTurtle = (deg) => {
+    document.querySelector('#turtle').style.transform = `rotate(${deg}deg)`
+  }
+  
   let canvas = document.getElementById("canvas")
   let context = canvas.getContext("2d")
   context.beginPath()
   
   logo.setHome({
-    x: 250,
-    y: 250
+    x: 200,
+    y: 200
   })
+  
+  moveTurtle(200, 200)
   
   logo.on('move', (from, to) => {
     context.moveTo(from.x, from.y)
     context.lineTo(to.x, to.y)
-    // context.stroke()
+    moveTurtle(to.x, to.y)
+  })
+  
+  logo.on('turn', deg => {
+    rotateTurtle(deg)
   })
   
   let draw = () => {
@@ -96,85 +215,20 @@ document.addEventListener('DOMContentLoaded', () => {
   
   editor.commands.addCommand({
     name: 'Run',
-    bindKey: {win: 'Ctrl-X',  mac: 'Command-X'},
-    exec: async (editor) => {
-      logo.terminate()
-      try {
-        editor.resetErrors()
-        await logo.execute(editor.getValue())
-      } catch (e) {
-        if (e.position) {
-          editor.getSession().setAnnotations([{
-            row: e.position.line,
-            column: e.position.char,
-            text: e.message,
-            type: 'error'
-          }])
-          
-          editor.session._errorMarker = editor.session.addMarker(
-            new Range(
-              e.position.line,
-              e.position.char,
-              e.position.line,
-              e.position.char + e.position.length - 1
-            ),
-            "logo-error", 
-            "text"
-          )
-        }
-      }
-    },
+    bindKey: {win: 'Ctrl-Y',  mac: 'Command-Y'},
+    exec,
     readOnly: true
   })
   
-  // document.getElementById('run').addEventListener('click', () => {
-  //   logo.terminate()
-  //   logo.execute(editor.getValue())
-  // })
-  // logo.execute(`
-  //   make "asd 10 
-  //   print run [
-  //     "local ""asd "1 "to "fos "fd -210 "end "fos "output ":asd
-  //   ]
-  // `).then(() => {
-  //   return logo.execute(`fd 10 print :asd output thing "asd`, true)
-  // }).then(val => { console.log(val) }).catch((e) => { console.error(e) })
+  editor.commands.addCommand({
+    name: 'Save',
+    bindKey: {win: 'Ctrl-S',  mac: 'Command-S'},
+    exec: save
+  })
+  
+  editor.commands.addCommand({
+    name: 'Open',
+    bindKey: {win: 'Ctrl-O',  mac: 'Command-O'},
+    exec: open
+  })
 })
-
-// l.execute(`first [1 2 3] for 5+5 [fd 100 rt 91.4 for 2 [right 1 lt 1] for 2 []]`)
-// l.execute(`fd 100 - (abs (-100 / 10)) first [first [abs -1] 2 3] last [1 2 3] butfirst [1 2 3] butlast [1 2 3] lastput 1 [0] firstput [] [1] UpperCase "asd lowercase [ASD asd] butlast [teszt elek 99] for 2 [fd 100] if ((10 != 9) and true) [fd arcsin sin 1] [fd -10]`)
-// l.execute(`empty? [] empty? " firstput int exp 1 [10] item 1 [1 2 3] first [sqrt 2] repeat 2 [fd 10%4] member? [1 2 3] [[1 2 3] 2 3] word? "asd (print 2 3 4 [1 2 [log10 3]]) print list 1 (list 1 2 3)`)
-// l.execute(
-// `make "asd 0
-// for 10 [make "asd :asd + 1 
-//   if :asd == 5 
-//     [output :asd] 
-//     [wait 1000 print "nope]
-// ]`
-// ).then(val => { console.log(val) }).catch((e) => { console.error(e.toString()) })
-
-// l.execute(`to asd :e fd :e output :e end to dsa fd 30 end asd 10 20 30 dsa print butlast [teszt elek 99]`).then(val => { console.log(val) }).catch((e) => { console.error(e.toString()) })
-// l.execute(`make "asd 10 print run ["local ""asd "1 "output ":asd] print :asd output thing "asd`).then(val => { console.log(val) })
-// l.execute(`first [1 2 3] for 5+5 [fd 100 rt 91.4 for 2 [right 1 lt 1] for 2 [] print heading print position] setposition [0 0] setheading 0 print heading print position`)
-// l.execute(`print pen pu setpencolor [1 1 10] print pen setpen [true [10 10 1]] print pen setheading towards [100 100] fd sqrt 20000 print position`)
-
-// logo.execute(`
-// to előre :e 
-//   fd :e 
-//   local "asd 0
-//   for 10 [make "asd :asd + 1 
-//     if :asd == 5 
-//       [output :asd] 
-//       [wait 100 print :asd]
-//   ]
-// end`).then(() => {
-//   console.log(logo._procedures)
-//   return logo.execute(`
-//     repeat 10 [
-//       if shown? [hideturtle] [showturtle]
-//       print előre 10
-//     ]`)
-// }).then(val => { console.log(val) }).catch((e) => { console.error(e) })
-// setTimeout(() => {
-//   l.terminate()
-// }, 1651)
