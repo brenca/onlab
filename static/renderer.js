@@ -3,12 +3,17 @@ const fs = require('fs-extra')
 const Logo = require('../lib/logo')
 const logo = new Logo()
 window.logo = logo
+const Range = window.ace.require("ace/range").Range
 
 let exec = async (editor) => {
   try {
     editor.resetErrors()
     await logo.execute(editor.getValue())
   } catch (e) {
+    if (e.node) {
+      console.log(logo.getCallStack(e.node))
+    }
+
     if (e.position) {
       editor.getSession().setAnnotations([{
         row: e.position.line,
@@ -22,7 +27,7 @@ let exec = async (editor) => {
           e.position.line,
           e.position.char,
           e.position.line,
-          e.position.char + e.position.length - 1
+          e.position.char + e.position.length
         ),
         "logo-error", 
         "text"
@@ -73,62 +78,6 @@ document.addEventListener('DOMContentLoaded', () => {
   editor.setTheme('ace/theme/xcode')
   editor.getSession().setMode("ace/mode/logo")
   editor.heatmap = []
-  const Range = window.ace.require("ace/range").Range
-  
-  document.querySelector('#delay').addEventListener('input', e => {
-    logo.delay = e.target.value
-  })
-  
-  logo.on('execution-started', () => {
-    document.querySelector('#playpause').classList.remove('glyphicon-play')
-    document.querySelector('#playpause').classList.add('glyphicon-pause')
-    document.querySelector('#stop').classList.remove('disabled')
-  })
-  
-  logo.on('execution-paused', () => {
-    document.querySelector('#playpause').classList.remove('glyphicon-pause')
-    document.querySelector('#playpause').classList.add('glyphicon-play')
-  })
-  
-  logo.on('execution-resumed', () => {
-    document.querySelector('#playpause').classList.remove('glyphicon-play')
-    document.querySelector('#playpause').classList.add('glyphicon-pause')
-  })
-  
-  logo.on('execution-stopped', () => {
-    document.querySelector('#playpause').classList.remove('glyphicon-pause')
-    document.querySelector('#playpause').classList.add('glyphicon-play')
-    document.querySelector('#stop').classList.add('disabled')
-  })
-  
-  document.querySelector('#playpause').addEventListener('click', e => {
-    if (e.target.classList.contains('glyphicon-pause')) {
-      logo.pause()
-    } else if (!logo.executing) {
-      exec(editor)
-    } else {
-      logo.resume()
-    }
-  })
-  
-  document.querySelector('#stop').addEventListener('click', e => {
-    logo.terminate()
-  })
-  
-  document.querySelector('#open').addEventListener('click', e => {
-    open(editor)
-  })
-  
-  document.querySelector('#save').addEventListener('click', e => {
-    save(editor)
-  })
-  
-  document.querySelector('#console').addEventListener('keyup', e => {
-    if (e.keyCode == 13) {
-      logo.execute(e.target.value)
-      e.target.value = ''
-    }
-  })
   
   let addToHeatmap = (newheat) => {
     if (editor.heatmap.length === 1) {
@@ -140,11 +89,11 @@ document.addEventListener('DOMContentLoaded', () => {
     editor.heatmap.push(newheat)
   }
   
-  let resetHeatmap = () => {
-    editor.heatmap.forEach(heat => {
-      editor.session.removeMarker(heat)
+  editor.resetHeatmap = function() {
+    this.heatmap.forEach(heat => {
+      this.session.removeMarker(heat)
     })
-    editor.heatmap = []
+    this.heatmap = []
   }
   
   let moveTurtle = (x, y) => {
@@ -205,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
   editor.resetErrors = function() {
     if (this.session._errorMarker) 
       this.session.removeMarker(this.session._errorMarker)
-    resetHeatmap()
+    this.resetHeatmap()
     this.getSession().setAnnotations([])
   }
   
@@ -230,5 +179,61 @@ document.addEventListener('DOMContentLoaded', () => {
     name: 'Open',
     bindKey: {win: 'Ctrl-O',  mac: 'Command-O'},
     exec: open
+  })
+  
+  document.querySelector('#delay').addEventListener('input', e => {
+    logo.delay = e.target.value
+  })
+  
+  logo.on('execution-started', () => {
+    document.querySelector('#playpause').classList.remove('glyphicon-play')
+    document.querySelector('#playpause').classList.add('glyphicon-pause')
+    document.querySelector('#stop').classList.remove('disabled')
+  })
+  
+  logo.on('execution-paused', () => {
+    document.querySelector('#playpause').classList.remove('glyphicon-pause')
+    document.querySelector('#playpause').classList.add('glyphicon-play')
+  })
+  
+  logo.on('execution-resumed', () => {
+    document.querySelector('#playpause').classList.remove('glyphicon-play')
+    document.querySelector('#playpause').classList.add('glyphicon-pause')
+  })
+  
+  logo.on('execution-stopped', (e) => {
+    editor.resetHeatmap()
+    document.querySelector('#playpause').classList.remove('glyphicon-pause')
+    document.querySelector('#playpause').classList.add('glyphicon-play')
+    document.querySelector('#stop').classList.add('disabled')
+  })
+  
+  document.querySelector('#playpause').addEventListener('click', e => {
+    if (e.target.classList.contains('glyphicon-pause')) {
+      logo.pause()
+    } else if (!logo.executing) {
+      exec(editor)
+    } else {
+      logo.resume()
+    }
+  })
+  
+  document.querySelector('#stop').addEventListener('click', e => {
+    logo.terminate()
+  })
+  
+  document.querySelector('#open').addEventListener('click', e => {
+    open(editor)
+  })
+  
+  document.querySelector('#save').addEventListener('click', e => {
+    save(editor)
+  })
+  
+  document.querySelector('#console').addEventListener('keyup', e => {
+    if (e.keyCode == 13) {
+      logo.execute(e.target.value)
+      e.target.value = ''
+    }
   })
 })
