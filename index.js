@@ -31,9 +31,9 @@ app.on('ready', () => {
     win.show()
   })
   
-  // win.webContents.on('dom-ready', () => {
-  //   win.webContents.openDevTools({ detach: true })
-  // })
+  win.webContents.on('dom-ready', () => {
+    win.webContents.openDevTools({ detach: true })
+  })
 })
 
 app.on('window-all-closed', function () {
