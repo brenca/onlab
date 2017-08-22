@@ -39,21 +39,21 @@ to előre :e :h
         [wait 100 print :asd]
     ]
 end
-make "f [1 1]
-print fibonacci 10
-to fibonacci :n
-    if (count :f) + 1 > :n [output (item :n :f)]
-    local "x (fibonacci :n - 1)
-    local "y (fibonacci :n - 2)
-    // print (:x / :y)
-    make "f (lastput (:x + :y) :f)
-    output (:x + :y)
-end
+// make "f [1 1]
+// print fibonacci 10
+// to fibonacci :n
+//     if (count :f) + 1 > :n [output (item :n :f)]
+//     local "x (fibonacci :n - 1)
+//     local "y (fibonacci :n - 2)
+//     // print (:x / :y)
+//     make "f (lastput (:x + :y) :f)
+//     output (:x + :y)
+// end
 
 // make "z 1
 // repeat 4 [print fibonacci :z make "z :z + 1]
 // print :f
-// előre előre 10 10 10
+előre előre 10 10 10
 // print fibonacci fibonacci 2
 repeat 360 [fd 1 rt 1]
         </pre>
