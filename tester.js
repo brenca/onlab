@@ -41,9 +41,27 @@ repeat 360 [fd 1 rt 1]
 
 */
 
-test.execute(`rc xycccd`)
+// test.execute(`rc xycccd rcc xyccf`)
+// test.execute('rccc xycd')
 // test.execute(`r2 xyd`)
 
-// test.execute(`  
-//   repeat 360 [fd 1 rt 1]
-// `)
+// test.execute(`output 1 + 1 + 2 * 3`)
+// test.execute(`a`)
+test.execute(`xbahbah`)
+test.execute(`xc`)
+test.execute(`xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`)
+// test.execute(``)
+// test.execute(`b`)
+// test.execute(`x`)
+// test.execute(`cx`)
+// test.execute(`xx`)
+// test.execute(`xxx`)
+// test.execute(`xxxx`)
+// test.execute(`xxxxx`)
+// test.execute(`xxxxxx`)
+// test.execute(`xxxxxxx`)
+// test.execute(`xxxxxxxx`)
+// test.execute(`xxxxxxxxx`)
+// test.execute(`xxxxxxxxxx`)
+// test.execute(`xxxxxxxxxxx`)
+// test.execute(`xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`)
