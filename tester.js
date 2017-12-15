@@ -10,14 +10,14 @@ const test = new Test()
 /*
 
 to előre :e :h
-    fd :e 
+    fd :e
     local "asd 0
     to dsa
       output 30
     end
-    for 10 [make "asd :asd + 1 
-    if :asd == 5 
-        [output :asd] 
+    for 10 [make "asd :asd + 1
+    if :asd == 5
+        [output :asd]
         [wait 100 print :asd]
     ]
 end
@@ -47,9 +47,29 @@ repeat 360 [fd 1 rt 1]
 
 // test.execute(`output 1 + 1 + 2 * 3`)
 // test.execute(`a`)
-test.execute(`xbahbah`)
-test.execute(`xc`)
-test.execute(`xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`)
+
+// test.execute(`xbahbah`)
+// test.execute(`x`)
+// test.execute(`xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`)
+
+// test.execute(`a`)
+// test.execute(`ab`)
+// test.execute(`abba`)
+
+// const profiler = require('@risingstack/v8-profiler')
+// const fs = require('fs')
+// profiler.startProfiling('profile', true)
+
+// test.execute(`bb`)
+
+// let profile = profiler.stopProfiling()
+// profile.export(function(error, result) {
+//   fs.writeFileSync('profile.cpuprofile', result)
+//   profile.delete();
+// })
+
+test.execute(`1 + 1 + 1`)
+
 // test.execute(``)
 // test.execute(`b`)
 // test.execute(`x`)
