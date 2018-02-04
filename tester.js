@@ -68,7 +68,9 @@ repeat 360 [fd 1 rt 1]
 //   profile.delete();
 // })
 
-test.execute(`1 + 1 + 1`)
+test.execute(`1 + 2 + 3 * 4 + 2`)
+test.execute(`1 * 9 - 2 - 3 * 3 ^ -4 + -2`)
+test.execute(`- 1 - + 1`)
 
 // test.execute(``)
 // test.execute(`b`)
