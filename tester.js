@@ -70,7 +70,9 @@ repeat 360 [fd 1 rt 1]
 
 test.execute(`1 + 2 + 3 * 4 + 2`)
 test.execute(`1 * 9 - 2 - 3 * 3 ^ -4 + -2`)
+test.execute(`1 * (9 - 2 - 3) * 3 ^ (-4 + -2)`)
 test.execute(`- 1 - + 1`)
+test.execute(`-22 / -4.4`)
 
 // test.execute(``)
 // test.execute(`b`)
