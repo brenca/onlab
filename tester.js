@@ -74,12 +74,13 @@ repeat 360 [fd 1 rt 1]
 // test.execute(`- 1 - + 1`)
 // test.execute(`-22 / -4.4`)
 
-test.execute(`1+1+1`)
+// test.execute(`1+1+1`)
 
 // test.execute(``)
 // test.execute(`bb`)
 // test.execute(`xxbah`)
-// test.execute(`a`)
+// test.execute(`abcd`)
+test.execute(`a`)
 // test.execute(`cx`)
 // test.execute(`xx`)
 // test.execute(`xxx`)
