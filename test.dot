@@ -1,29 +1,151 @@
 digraph g {
-"b2eb5cea-573c-4328-98e2-68c869415e6d" [label="('S', 0, 1)" shape="box" style="rounded"]
-"59384a64-843e-4d2c-95d9-66c2bf90537a" [label="S ::= a●" shape="oval"]
-"e744a831-cb46-42bc-bb30-69f9f82b4cd9" [label="('a', 0, 1)" shape="box" style="rounded"]
-"27e1efa3-07d2-4414-944c-c9fd74fd6cb4" [label="S ::= S● S" shape="oval"]
-"300bba13-9a56-48d4-9f33-ea3d8a16c564" [label="('S', 0, 0)" shape="box" style="rounded"]
-"97e7a373-dd94-4ce4-b949-e118055b36e1" [label="S ::= S S●" shape="oval"]
-"3a0c36bd-fe62-4d33-a0d0-64af234e6518" [label="S ::= Ɛ●" shape="oval"]
-"ddb7c99f-c89a-4d66-a791-650685a230b6" [label="(Ɛ, 0, 0)" shape="box" style="rounded"]
-"e69cb17a-63f1-45db-8d21-a0153df98e74" [label="S ::= S S●" shape="oval"]
-"b2eb5cea-573c-4328-98e2-68c869415e6d" -> "59384a64-843e-4d2c-95d9-66c2bf90537a"
-"b2eb5cea-573c-4328-98e2-68c869415e6d" -> "27e1efa3-07d2-4414-944c-c9fd74fd6cb4"
-"b2eb5cea-573c-4328-98e2-68c869415e6d" -> "e69cb17a-63f1-45db-8d21-a0153df98e74"
-"59384a64-843e-4d2c-95d9-66c2bf90537a" -> "e744a831-cb46-42bc-bb30-69f9f82b4cd9"
-"27e1efa3-07d2-4414-944c-c9fd74fd6cb4" -> "b2eb5cea-573c-4328-98e2-68c869415e6d"
-"27e1efa3-07d2-4414-944c-c9fd74fd6cb4" -> "300bba13-9a56-48d4-9f33-ea3d8a16c564"
-"300bba13-9a56-48d4-9f33-ea3d8a16c564" -> "97e7a373-dd94-4ce4-b949-e118055b36e1"
-"300bba13-9a56-48d4-9f33-ea3d8a16c564" -> "3a0c36bd-fe62-4d33-a0d0-64af234e6518"
-"97e7a373-dd94-4ce4-b949-e118055b36e1" -> "300bba13-9a56-48d4-9f33-ea3d8a16c564"
-"97e7a373-dd94-4ce4-b949-e118055b36e1" -> "300bba13-9a56-48d4-9f33-ea3d8a16c564"
-"3a0c36bd-fe62-4d33-a0d0-64af234e6518" -> "ddb7c99f-c89a-4d66-a791-650685a230b6"
-"e69cb17a-63f1-45db-8d21-a0153df98e74" -> "300bba13-9a56-48d4-9f33-ea3d8a16c564"
-"e69cb17a-63f1-45db-8d21-a0153df98e74" -> "b2eb5cea-573c-4328-98e2-68c869415e6d"
-{rank = same; "b2eb5cea-573c-4328-98e2-68c869415e6d"}
-{rank = same; "59384a64-843e-4d2c-95d9-66c2bf90537a"; "27e1efa3-07d2-4414-944c-c9fd74fd6cb4"; "e69cb17a-63f1-45db-8d21-a0153df98e74"}
-{rank = same; "300bba13-9a56-48d4-9f33-ea3d8a16c564"}
-{rank = same; "97e7a373-dd94-4ce4-b949-e118055b36e1"; "3a0c36bd-fe62-4d33-a0d0-64af234e6518"}
-{rank = same; "e744a831-cb46-42bc-bb30-69f9f82b4cd9"; "ddb7c99f-c89a-4d66-a791-650685a230b6"}
+"20420f39-7f07-4391-b957-19673ffeebb2" [label=<('E', 0, 15)<BR /><FONT POINT-SIZE="10">cd4ead4444</FONT>>  shape="box" style="rounded"]
+"0e000733-9435-4100-ada0-3400d7f28135" [label=<E ::= E operator-2 E●<BR /><FONT POINT-SIZE="10">9c971236aa</FONT>>  shape="oval"]
+"a6e94892-de39-4cea-a073-958d2dcdbefa" [label=<('E', 0, 13)<BR /><FONT POINT-SIZE="10">3f4355b693</FONT>>  shape="box" style="rounded"]
+"53c9ad9f-46d0-47b4-b13d-96f7668ea98d" [label=<E ::= E operator-2 E●<BR /><FONT POINT-SIZE="10">782a4ee7d6</FONT>>  shape="oval"]
+"931469c2-506b-4f62-8806-824bc5960c26" [label=<('E', 0, 11)<BR /><FONT POINT-SIZE="10">5d9b52cb63</FONT>>  shape="box" style="rounded"]
+"df529065-77e5-4f83-b7d1-e9eb7ec1946f" [label=<E ::= E operator-2 E●<BR /><FONT POINT-SIZE="10">fef7e7c55e</FONT>>  shape="oval"]
+"dc58fcd7-c6eb-4bed-8f38-45087013f5b2" [label=<('E', 0, 9)<BR /><FONT POINT-SIZE="10">60dbc51196</FONT>>  shape="box" style="rounded"]
+"e1c74dbf-9592-4d7e-9a29-02ef09fdf747" [label=<E ::= E operator-2 E●<BR /><FONT POINT-SIZE="10">797da7a64b</FONT>>  shape="oval"]
+"8e016f48-adff-4445-b386-ae97f00692e9" [label=<('E', 0, 7)<BR /><FONT POINT-SIZE="10">47e16ff9b3</FONT>>  shape="box" style="rounded"]
+"3947e8f6-8b62-4053-9ffd-7d2c4fe8a4c1" [label=<E ::= E operator-2 E●<BR /><FONT POINT-SIZE="10">1a24fae406</FONT>>  shape="oval"]
+"2c5c9303-ebac-4e57-b3d7-55799afaa3c1" [label=<('E', 0, 5)<BR /><FONT POINT-SIZE="10">1fe5415182</FONT>>  shape="box" style="rounded"]
+"92aac35c-617c-420c-a7ca-d209640a5064" [label=<E ::= E operator-2 E●<BR /><FONT POINT-SIZE="10">a883366be5</FONT>>  shape="oval"]
+"aede79bd-45d2-45c6-8d85-202cefce6906" [label=<('E', 0, 3)<BR /><FONT POINT-SIZE="10">a4e1fd0222</FONT>>  shape="box" style="rounded"]
+"2e263c8a-2001-40d6-a0aa-2f1bb5a159a5" [label=<('E', 0, 1)<BR /><FONT POINT-SIZE="10">5882349638</FONT>>  shape="box" style="rounded"]
+"9fd05513-219a-4311-aecf-18895ee80ce2" [label=<('N', 0, 1)<BR /><FONT POINT-SIZE="10">da9e73cf89</FONT>>  shape="box" style="rounded"]
+"0e9fd5b5-f03c-40cf-bb66-c49f7bfec44e" [label=<('num', 0, 1)<BR /><FONT POINT-SIZE="10">49a2a68fff</FONT>>  shape="box" style="rounded"]
+"108a2e93-61da-44b9-bc7f-6302c2b1c00e" [label=<('1', 0, 1)<BR /><FONT POINT-SIZE="10">6a665bd271</FONT>>  shape="box" style="rounded"]
+"4e70d2ca-4b1a-4a24-a284-5d40c5993884" [label=<('E' ::= 'E' 'operator-2' 'E'●, 1, 3)<BR /><FONT POINT-SIZE="10">f655da5ecc</FONT>>  shape="box"]
+"a99d0662-3280-4732-9f76-10b362a76547" [label=<('operator-2', 1, 2)<BR /><FONT POINT-SIZE="10">211a15e73d</FONT>>  shape="box" style="rounded"]
+"33191d96-449f-463c-ba84-24266aa69a58" [label=<('+', 1, 2)<BR /><FONT POINT-SIZE="10">47ca6343c0</FONT>>  shape="box" style="rounded"]
+"057af603-e0be-475a-9f9b-3e454c15136b" [label=<('E', 2, 3)<BR /><FONT POINT-SIZE="10">4106c3c5e6</FONT>>  shape="box" style="rounded"]
+"7e26cd5a-3190-4124-9f14-21e205aea5a7" [label=<('N', 2, 3)<BR /><FONT POINT-SIZE="10">0668c05c36</FONT>>  shape="box" style="rounded"]
+"2cd69d83-9dd4-4f06-9cb3-43d93ac3b5a2" [label=<('num', 2, 3)<BR /><FONT POINT-SIZE="10">a99b12b60a</FONT>>  shape="box" style="rounded"]
+"dc045c08-d5fd-4dc2-874b-24c7e7678c19" [label=<('1', 2, 3)<BR /><FONT POINT-SIZE="10">603d822666</FONT>>  shape="box" style="rounded"]
+"6493413e-e501-46f3-8790-08d074dfbb55" [label=<('E' ::= 'E' 'operator-2' 'E'●, 3, 5)<BR /><FONT POINT-SIZE="10">b2087a4b35</FONT>>  shape="box"]
+"eb044ae5-8e21-4289-95f1-a8275dfc3993" [label=<('operator-2', 3, 4)<BR /><FONT POINT-SIZE="10">0568cb53b5</FONT>>  shape="box" style="rounded"]
+"6482abaa-9cba-4b35-8867-61df96711c52" [label=<('+', 3, 4)<BR /><FONT POINT-SIZE="10">6d2ce3ba2d</FONT>>  shape="box" style="rounded"]
+"7cdf06f8-5d0c-451a-969d-1ccc8f3f164a" [label=<('E', 4, 5)<BR /><FONT POINT-SIZE="10">6d20c5f728</FONT>>  shape="box" style="rounded"]
+"354b2b68-bff0-4532-9402-f49e4044580d" [label=<('N', 4, 5)<BR /><FONT POINT-SIZE="10">355888432a</FONT>>  shape="box" style="rounded"]
+"9bb8adc4-86cc-4a67-a734-c26416c90a87" [label=<('num', 4, 5)<BR /><FONT POINT-SIZE="10">658337d0ad</FONT>>  shape="box" style="rounded"]
+"9f986651-7727-46e2-b61a-678adbde16f8" [label=<('1', 4, 5)<BR /><FONT POINT-SIZE="10">459cae53e4</FONT>>  shape="box" style="rounded"]
+"e07cd5a8-4244-42a4-a841-b549de474704" [label=<('E' ::= 'E' 'operator-2' 'E'●, 5, 7)<BR /><FONT POINT-SIZE="10">3d1965421b</FONT>>  shape="box"]
+"f481bc5d-42b8-4240-b7c7-788605c4406a" [label=<('operator-2', 5, 6)<BR /><FONT POINT-SIZE="10">9f5887f6cd</FONT>>  shape="box" style="rounded"]
+"0cf3c76b-6f50-49ab-9645-a68408df3ca9" [label=<('+', 5, 6)<BR /><FONT POINT-SIZE="10">7b75d4de3b</FONT>>  shape="box" style="rounded"]
+"612c582f-0f04-4900-b7d6-3fe35e78bc03" [label=<('E', 6, 7)<BR /><FONT POINT-SIZE="10">794b7d0876</FONT>>  shape="box" style="rounded"]
+"86e5cf4d-85c4-4025-baa9-0b030cc6cdba" [label=<('N', 6, 7)<BR /><FONT POINT-SIZE="10">dd24e163e3</FONT>>  shape="box" style="rounded"]
+"7c5eb7f9-7b09-4fda-bca2-5abfdb397c15" [label=<('num', 6, 7)<BR /><FONT POINT-SIZE="10">77fc291dd6</FONT>>  shape="box" style="rounded"]
+"38283ad7-8f78-4085-923e-e6a61393eb6d" [label=<('1', 6, 7)<BR /><FONT POINT-SIZE="10">27bc9cd981</FONT>>  shape="box" style="rounded"]
+"725d07aa-1f77-4901-93a4-07bfefaa4f91" [label=<('E' ::= 'E' 'operator-2' 'E'●, 7, 9)<BR /><FONT POINT-SIZE="10">7d08336e10</FONT>>  shape="box"]
+"f78de282-c974-4a39-a119-1ad2965f12f9" [label=<('operator-2', 7, 8)<BR /><FONT POINT-SIZE="10">8e2637d143</FONT>>  shape="box" style="rounded"]
+"79f657a9-2f4e-48f3-ab4a-2ca63a3230a1" [label=<('+', 7, 8)<BR /><FONT POINT-SIZE="10">d2578663a9</FONT>>  shape="box" style="rounded"]
+"9f006d02-c017-44ac-8f45-2e688a96f89e" [label=<('E', 8, 9)<BR /><FONT POINT-SIZE="10">d06ad59923</FONT>>  shape="box" style="rounded"]
+"5cbb9ff5-d2fa-466c-b00b-5e5f6d3e3dc3" [label=<('N', 8, 9)<BR /><FONT POINT-SIZE="10">339971320a</FONT>>  shape="box" style="rounded"]
+"56e37fc2-6fbe-4670-a235-9b741682b62d" [label=<('num', 8, 9)<BR /><FONT POINT-SIZE="10">8d38925971</FONT>>  shape="box" style="rounded"]
+"cc62e84b-be86-406e-a5f7-cca3f23111f9" [label=<('1', 8, 9)<BR /><FONT POINT-SIZE="10">c0d7338393</FONT>>  shape="box" style="rounded"]
+"8c0e2456-a43f-4b07-82c5-ccf98b4e93c4" [label=<('E' ::= 'E' 'operator-2' 'E'●, 9, 11)<BR /><FONT POINT-SIZE="10">32350ec7ed</FONT>>  shape="box"]
+"d105cc98-a021-40e1-9b5e-9984f4f772a1" [label=<('operator-2', 9, 10)<BR /><FONT POINT-SIZE="10">b2dc07787e</FONT>>  shape="box" style="rounded"]
+"50d3e0af-eace-4d18-a9b3-784f54457340" [label=<('+', 9, 10)<BR /><FONT POINT-SIZE="10">7f0e0e3c9a</FONT>>  shape="box" style="rounded"]
+"d033463a-a8ec-4df0-896f-5763f975b557" [label=<('E', 10, 11)<BR /><FONT POINT-SIZE="10">f65abfb974</FONT>>  shape="box" style="rounded"]
+"2950c9c0-394e-4b10-abb0-ec13268c642e" [label=<('N', 10, 11)<BR /><FONT POINT-SIZE="10">e66ba3b6be</FONT>>  shape="box" style="rounded"]
+"457b8003-e1e8-4aaf-b60e-8525dcc96ecd" [label=<('num', 10, 11)<BR /><FONT POINT-SIZE="10">c40fe76ae3</FONT>>  shape="box" style="rounded"]
+"b991b72d-82f1-412e-a3f6-e5c3e2fe2b6d" [label=<('1', 10, 11)<BR /><FONT POINT-SIZE="10">d0c376c7ed</FONT>>  shape="box" style="rounded"]
+"e4dc1580-e9ff-4f8b-b5e4-7ab14829fdab" [label=<('E' ::= 'E' 'operator-2' 'E'●, 11, 13)<BR /><FONT POINT-SIZE="10">ac36d0bb78</FONT>>  shape="box"]
+"9a86f8c4-a2fb-49b5-a26b-9afcf3afb952" [label=<('operator-2', 11, 12)<BR /><FONT POINT-SIZE="10">6080f9ae47</FONT>>  shape="box" style="rounded"]
+"46e15819-ff05-412a-b093-6078d5a6a88c" [label=<('+', 11, 12)<BR /><FONT POINT-SIZE="10">7402a871e8</FONT>>  shape="box" style="rounded"]
+"2a61a0b5-3a92-4e97-8523-ae6ac1974837" [label=<('E', 12, 13)<BR /><FONT POINT-SIZE="10">cc900af711</FONT>>  shape="box" style="rounded"]
+"13ec3fe0-be93-4c7f-805c-ca0e27c08de0" [label=<('N', 12, 13)<BR /><FONT POINT-SIZE="10">6cd53099c8</FONT>>  shape="box" style="rounded"]
+"0d70925f-5336-41cc-9cc9-9f33aea4c8aa" [label=<('num', 12, 13)<BR /><FONT POINT-SIZE="10">0264b3afc8</FONT>>  shape="box" style="rounded"]
+"f6d68f34-8256-4ede-a87e-a8923206a31f" [label=<('1', 12, 13)<BR /><FONT POINT-SIZE="10">900b0c1280</FONT>>  shape="box" style="rounded"]
+"15e58790-d5cb-49f6-be7e-a20abe4b2a2e" [label=<('E' ::= 'E' 'operator-2' 'E'●, 13, 15)<BR /><FONT POINT-SIZE="10">44d75de613</FONT>>  shape="box"]
+"a072630c-438a-49e8-8e21-0eeebcd3ed14" [label=<('operator-2', 13, 14)<BR /><FONT POINT-SIZE="10">20e400566e</FONT>>  shape="box" style="rounded"]
+"e873680b-b7ee-4ecb-86cb-c028109c390b" [label=<('+', 13, 14)<BR /><FONT POINT-SIZE="10">478ef1aed7</FONT>>  shape="box" style="rounded"]
+"f9e00922-98ff-43c2-a5cb-2d0c28c36a69" [label=<('E', 14, 15)<BR /><FONT POINT-SIZE="10">97be13d06e</FONT>>  shape="box" style="rounded"]
+"8ce424bd-f0b6-463b-91e5-6c5c47709862" [label=<('N', 14, 15)<BR /><FONT POINT-SIZE="10">a3c2199648</FONT>>  shape="box" style="rounded"]
+"947e349c-3995-4e16-a23d-9d5a6e07bdb8" [label=<('num', 14, 15)<BR /><FONT POINT-SIZE="10">0ab33aed2a</FONT>>  shape="box" style="rounded"]
+"c080bcab-a27b-4f28-a318-29a23de7e0b0" [label=<('1', 14, 15)<BR /><FONT POINT-SIZE="10">ba2e422c47</FONT>>  shape="box" style="rounded"]
+"20420f39-7f07-4391-b957-19673ffeebb2" -> "0e000733-9435-4100-ada0-3400d7f28135" [label="0"]
+"0e000733-9435-4100-ada0-3400d7f28135" -> "a6e94892-de39-4cea-a073-958d2dcdbefa" [label="0"]
+"0e000733-9435-4100-ada0-3400d7f28135" -> "15e58790-d5cb-49f6-be7e-a20abe4b2a2e" [label="1"]
+"a6e94892-de39-4cea-a073-958d2dcdbefa" -> "53c9ad9f-46d0-47b4-b13d-96f7668ea98d" [label="0"]
+"53c9ad9f-46d0-47b4-b13d-96f7668ea98d" -> "931469c2-506b-4f62-8806-824bc5960c26" [label="0"]
+"53c9ad9f-46d0-47b4-b13d-96f7668ea98d" -> "e4dc1580-e9ff-4f8b-b5e4-7ab14829fdab" [label="1"]
+"931469c2-506b-4f62-8806-824bc5960c26" -> "df529065-77e5-4f83-b7d1-e9eb7ec1946f" [label="0"]
+"df529065-77e5-4f83-b7d1-e9eb7ec1946f" -> "dc58fcd7-c6eb-4bed-8f38-45087013f5b2" [label="0"]
+"df529065-77e5-4f83-b7d1-e9eb7ec1946f" -> "8c0e2456-a43f-4b07-82c5-ccf98b4e93c4" [label="1"]
+"dc58fcd7-c6eb-4bed-8f38-45087013f5b2" -> "e1c74dbf-9592-4d7e-9a29-02ef09fdf747" [label="0"]
+"e1c74dbf-9592-4d7e-9a29-02ef09fdf747" -> "8e016f48-adff-4445-b386-ae97f00692e9" [label="0"]
+"e1c74dbf-9592-4d7e-9a29-02ef09fdf747" -> "725d07aa-1f77-4901-93a4-07bfefaa4f91" [label="1"]
+"8e016f48-adff-4445-b386-ae97f00692e9" -> "3947e8f6-8b62-4053-9ffd-7d2c4fe8a4c1" [label="0"]
+"3947e8f6-8b62-4053-9ffd-7d2c4fe8a4c1" -> "2c5c9303-ebac-4e57-b3d7-55799afaa3c1" [label="0"]
+"3947e8f6-8b62-4053-9ffd-7d2c4fe8a4c1" -> "e07cd5a8-4244-42a4-a841-b549de474704" [label="1"]
+"2c5c9303-ebac-4e57-b3d7-55799afaa3c1" -> "92aac35c-617c-420c-a7ca-d209640a5064" [label="0"]
+"92aac35c-617c-420c-a7ca-d209640a5064" -> "aede79bd-45d2-45c6-8d85-202cefce6906" [label="0"]
+"92aac35c-617c-420c-a7ca-d209640a5064" -> "6493413e-e501-46f3-8790-08d074dfbb55" [label="1"]
+"aede79bd-45d2-45c6-8d85-202cefce6906" -> "2e263c8a-2001-40d6-a0aa-2f1bb5a159a5" [label="0"]
+"aede79bd-45d2-45c6-8d85-202cefce6906" -> "4e70d2ca-4b1a-4a24-a284-5d40c5993884" [label="1"]
+"2e263c8a-2001-40d6-a0aa-2f1bb5a159a5" -> "9fd05513-219a-4311-aecf-18895ee80ce2" [label="0"]
+"9fd05513-219a-4311-aecf-18895ee80ce2" -> "0e9fd5b5-f03c-40cf-bb66-c49f7bfec44e" [label="0"]
+"0e9fd5b5-f03c-40cf-bb66-c49f7bfec44e" -> "108a2e93-61da-44b9-bc7f-6302c2b1c00e" [label="0"]
+"4e70d2ca-4b1a-4a24-a284-5d40c5993884" -> "a99d0662-3280-4732-9f76-10b362a76547" [label="0"]
+"4e70d2ca-4b1a-4a24-a284-5d40c5993884" -> "057af603-e0be-475a-9f9b-3e454c15136b" [label="1"]
+"a99d0662-3280-4732-9f76-10b362a76547" -> "33191d96-449f-463c-ba84-24266aa69a58" [label="0"]
+"057af603-e0be-475a-9f9b-3e454c15136b" -> "7e26cd5a-3190-4124-9f14-21e205aea5a7" [label="0"]
+"7e26cd5a-3190-4124-9f14-21e205aea5a7" -> "2cd69d83-9dd4-4f06-9cb3-43d93ac3b5a2" [label="0"]
+"2cd69d83-9dd4-4f06-9cb3-43d93ac3b5a2" -> "dc045c08-d5fd-4dc2-874b-24c7e7678c19" [label="0"]
+"6493413e-e501-46f3-8790-08d074dfbb55" -> "eb044ae5-8e21-4289-95f1-a8275dfc3993" [label="0"]
+"6493413e-e501-46f3-8790-08d074dfbb55" -> "7cdf06f8-5d0c-451a-969d-1ccc8f3f164a" [label="1"]
+"eb044ae5-8e21-4289-95f1-a8275dfc3993" -> "6482abaa-9cba-4b35-8867-61df96711c52" [label="0"]
+"7cdf06f8-5d0c-451a-969d-1ccc8f3f164a" -> "354b2b68-bff0-4532-9402-f49e4044580d" [label="0"]
+"354b2b68-bff0-4532-9402-f49e4044580d" -> "9bb8adc4-86cc-4a67-a734-c26416c90a87" [label="0"]
+"9bb8adc4-86cc-4a67-a734-c26416c90a87" -> "9f986651-7727-46e2-b61a-678adbde16f8" [label="0"]
+"e07cd5a8-4244-42a4-a841-b549de474704" -> "f481bc5d-42b8-4240-b7c7-788605c4406a" [label="0"]
+"e07cd5a8-4244-42a4-a841-b549de474704" -> "612c582f-0f04-4900-b7d6-3fe35e78bc03" [label="1"]
+"f481bc5d-42b8-4240-b7c7-788605c4406a" -> "0cf3c76b-6f50-49ab-9645-a68408df3ca9" [label="0"]
+"612c582f-0f04-4900-b7d6-3fe35e78bc03" -> "86e5cf4d-85c4-4025-baa9-0b030cc6cdba" [label="0"]
+"86e5cf4d-85c4-4025-baa9-0b030cc6cdba" -> "7c5eb7f9-7b09-4fda-bca2-5abfdb397c15" [label="0"]
+"7c5eb7f9-7b09-4fda-bca2-5abfdb397c15" -> "38283ad7-8f78-4085-923e-e6a61393eb6d" [label="0"]
+"725d07aa-1f77-4901-93a4-07bfefaa4f91" -> "f78de282-c974-4a39-a119-1ad2965f12f9" [label="0"]
+"725d07aa-1f77-4901-93a4-07bfefaa4f91" -> "9f006d02-c017-44ac-8f45-2e688a96f89e" [label="1"]
+"f78de282-c974-4a39-a119-1ad2965f12f9" -> "79f657a9-2f4e-48f3-ab4a-2ca63a3230a1" [label="0"]
+"9f006d02-c017-44ac-8f45-2e688a96f89e" -> "5cbb9ff5-d2fa-466c-b00b-5e5f6d3e3dc3" [label="0"]
+"5cbb9ff5-d2fa-466c-b00b-5e5f6d3e3dc3" -> "56e37fc2-6fbe-4670-a235-9b741682b62d" [label="0"]
+"56e37fc2-6fbe-4670-a235-9b741682b62d" -> "cc62e84b-be86-406e-a5f7-cca3f23111f9" [label="0"]
+"8c0e2456-a43f-4b07-82c5-ccf98b4e93c4" -> "d105cc98-a021-40e1-9b5e-9984f4f772a1" [label="0"]
+"8c0e2456-a43f-4b07-82c5-ccf98b4e93c4" -> "d033463a-a8ec-4df0-896f-5763f975b557" [label="1"]
+"d105cc98-a021-40e1-9b5e-9984f4f772a1" -> "50d3e0af-eace-4d18-a9b3-784f54457340" [label="0"]
+"d033463a-a8ec-4df0-896f-5763f975b557" -> "2950c9c0-394e-4b10-abb0-ec13268c642e" [label="0"]
+"2950c9c0-394e-4b10-abb0-ec13268c642e" -> "457b8003-e1e8-4aaf-b60e-8525dcc96ecd" [label="0"]
+"457b8003-e1e8-4aaf-b60e-8525dcc96ecd" -> "b991b72d-82f1-412e-a3f6-e5c3e2fe2b6d" [label="0"]
+"e4dc1580-e9ff-4f8b-b5e4-7ab14829fdab" -> "9a86f8c4-a2fb-49b5-a26b-9afcf3afb952" [label="0"]
+"e4dc1580-e9ff-4f8b-b5e4-7ab14829fdab" -> "2a61a0b5-3a92-4e97-8523-ae6ac1974837" [label="1"]
+"9a86f8c4-a2fb-49b5-a26b-9afcf3afb952" -> "46e15819-ff05-412a-b093-6078d5a6a88c" [label="0"]
+"2a61a0b5-3a92-4e97-8523-ae6ac1974837" -> "13ec3fe0-be93-4c7f-805c-ca0e27c08de0" [label="0"]
+"13ec3fe0-be93-4c7f-805c-ca0e27c08de0" -> "0d70925f-5336-41cc-9cc9-9f33aea4c8aa" [label="0"]
+"0d70925f-5336-41cc-9cc9-9f33aea4c8aa" -> "f6d68f34-8256-4ede-a87e-a8923206a31f" [label="0"]
+"15e58790-d5cb-49f6-be7e-a20abe4b2a2e" -> "a072630c-438a-49e8-8e21-0eeebcd3ed14" [label="0"]
+"15e58790-d5cb-49f6-be7e-a20abe4b2a2e" -> "f9e00922-98ff-43c2-a5cb-2d0c28c36a69" [label="1"]
+"a072630c-438a-49e8-8e21-0eeebcd3ed14" -> "e873680b-b7ee-4ecb-86cb-c028109c390b" [label="0"]
+"f9e00922-98ff-43c2-a5cb-2d0c28c36a69" -> "8ce424bd-f0b6-463b-91e5-6c5c47709862" [label="0"]
+"8ce424bd-f0b6-463b-91e5-6c5c47709862" -> "947e349c-3995-4e16-a23d-9d5a6e07bdb8" [label="0"]
+"947e349c-3995-4e16-a23d-9d5a6e07bdb8" -> "c080bcab-a27b-4f28-a318-29a23de7e0b0" [label="0"]
+{rank = same; "20420f39-7f07-4391-b957-19673ffeebb2"}
+{rank = same; "0e000733-9435-4100-ada0-3400d7f28135"}
+{rank = same; "a6e94892-de39-4cea-a073-958d2dcdbefa"; "15e58790-d5cb-49f6-be7e-a20abe4b2a2e"}
+{rank = same; "53c9ad9f-46d0-47b4-b13d-96f7668ea98d"; "a072630c-438a-49e8-8e21-0eeebcd3ed14"; "f9e00922-98ff-43c2-a5cb-2d0c28c36a69"}
+{rank = same; "931469c2-506b-4f62-8806-824bc5960c26"; "e4dc1580-e9ff-4f8b-b5e4-7ab14829fdab"; "8ce424bd-f0b6-463b-91e5-6c5c47709862"}
+{rank = same; "df529065-77e5-4f83-b7d1-e9eb7ec1946f"; "9a86f8c4-a2fb-49b5-a26b-9afcf3afb952"; "2a61a0b5-3a92-4e97-8523-ae6ac1974837"; "947e349c-3995-4e16-a23d-9d5a6e07bdb8"}
+{rank = same; "dc58fcd7-c6eb-4bed-8f38-45087013f5b2"; "8c0e2456-a43f-4b07-82c5-ccf98b4e93c4"; "13ec3fe0-be93-4c7f-805c-ca0e27c08de0"}
+{rank = same; "e1c74dbf-9592-4d7e-9a29-02ef09fdf747"; "d105cc98-a021-40e1-9b5e-9984f4f772a1"; "d033463a-a8ec-4df0-896f-5763f975b557"; "0d70925f-5336-41cc-9cc9-9f33aea4c8aa"}
+{rank = same; "8e016f48-adff-4445-b386-ae97f00692e9"; "725d07aa-1f77-4901-93a4-07bfefaa4f91"; "2950c9c0-394e-4b10-abb0-ec13268c642e"}
+{rank = same; "3947e8f6-8b62-4053-9ffd-7d2c4fe8a4c1"; "f78de282-c974-4a39-a119-1ad2965f12f9"; "9f006d02-c017-44ac-8f45-2e688a96f89e"; "457b8003-e1e8-4aaf-b60e-8525dcc96ecd"}
+{rank = same; "2c5c9303-ebac-4e57-b3d7-55799afaa3c1"; "e07cd5a8-4244-42a4-a841-b549de474704"; "5cbb9ff5-d2fa-466c-b00b-5e5f6d3e3dc3"}
+{rank = same; "92aac35c-617c-420c-a7ca-d209640a5064"; "f481bc5d-42b8-4240-b7c7-788605c4406a"; "612c582f-0f04-4900-b7d6-3fe35e78bc03"; "56e37fc2-6fbe-4670-a235-9b741682b62d"}
+{rank = same; "aede79bd-45d2-45c6-8d85-202cefce6906"; "6493413e-e501-46f3-8790-08d074dfbb55"; "86e5cf4d-85c4-4025-baa9-0b030cc6cdba"}
+{rank = same; "2e263c8a-2001-40d6-a0aa-2f1bb5a159a5"; "4e70d2ca-4b1a-4a24-a284-5d40c5993884"; "eb044ae5-8e21-4289-95f1-a8275dfc3993"; "7cdf06f8-5d0c-451a-969d-1ccc8f3f164a"; "7c5eb7f9-7b09-4fda-bca2-5abfdb397c15"}
+{rank = same; "9fd05513-219a-4311-aecf-18895ee80ce2"; "a99d0662-3280-4732-9f76-10b362a76547"; "057af603-e0be-475a-9f9b-3e454c15136b"; "354b2b68-bff0-4532-9402-f49e4044580d"}
+{rank = same; "0e9fd5b5-f03c-40cf-bb66-c49f7bfec44e"; "7e26cd5a-3190-4124-9f14-21e205aea5a7"; "9bb8adc4-86cc-4a67-a734-c26416c90a87"}
+{rank = same; "2cd69d83-9dd4-4f06-9cb3-43d93ac3b5a2"}
+{rank = same; "108a2e93-61da-44b9-bc7f-6302c2b1c00e"; "33191d96-449f-463c-ba84-24266aa69a58"; "dc045c08-d5fd-4dc2-874b-24c7e7678c19"; "6482abaa-9cba-4b35-8867-61df96711c52"; "9f986651-7727-46e2-b61a-678adbde16f8"; "0cf3c76b-6f50-49ab-9645-a68408df3ca9"; "38283ad7-8f78-4085-923e-e6a61393eb6d"; "79f657a9-2f4e-48f3-ab4a-2ca63a3230a1"; "cc62e84b-be86-406e-a5f7-cca3f23111f9"; "50d3e0af-eace-4d18-a9b3-784f54457340"; "b991b72d-82f1-412e-a3f6-e5c3e2fe2b6d"; "46e15819-ff05-412a-b093-6078d5a6a88c"; "f6d68f34-8256-4ede-a87e-a8923206a31f"; "e873680b-b7ee-4ecb-86cb-c028109c390b"; "c080bcab-a27b-4f28-a318-29a23de7e0b0"}
 }

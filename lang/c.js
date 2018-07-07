@@ -2,6 +2,7 @@ const Language = require('../lib/language')
 const EventEmitter = require('events')
 const fs = require('fs')
 const { Lexer, Parser } = Language
+const { writeGraph } = require('../lib/utils')
 
 class CLang extends Language {
   constructor() {
@@ -18,23 +19,67 @@ class CLang extends Language {
       new Lexer.TokenClass('gte', />=(?!\w)/iu),
       new Lexer.TokenClass('eq', /==(?!\w)/iu),
       new Lexer.TokenClass('ne', /!=(?!\w)/iu),
+      new Lexer.TokenClass('while', /while(?!\w)/iu),
+      new Lexer.TokenClass('for', /for(?!\w)/iu),
       new Lexer.TokenClass('float', /(?=\d)\d+\.\d+(?!\w)/iu),
       new Lexer.TokenClass('integer', /(?=\d)\d+(?!\w)/iu),
       new Lexer.TokenClass('identifier', /(?=[a-z_])[a-z0-9_]*(?!\w)/iu),
+      new Lexer.TokenClass('string-literal', /"(?:[^"\\]|\\.)*"/iu),
+      new Lexer.TokenClass('char-literal', /'(?:[^'\\]|\\.)'/iu),
       new Lexer.TokenClass('char', /\S/iu)
     ])
 
     c.parser.setupFromBNF(`
-      <Program> ::= <Program> <Stuff> | <Stuff>
-      <Stuff> ::= <Function-call> | <Boolean> | <Math> | <Identifier>
+      <Program> ::= <Program> <Statement> | ""
+      <Statement> ::= <Needs-semicolon> ";"
+                    | <Function-definition>
+                    | <While>
+                    | <For>
+      <Needs-semicolon> ::= <Function-call>
+                          | <Variable-dec-or-def>
+                          | <Assignment>
 
-      <Identifier> ::= <Token-identifier>
+      <Function-definition> ::= <Type-and-name>
+                                "(" <Identifier-list> ")"
+                                <Block>
+
+      <While> ::= <Token-while>
+                  "(" <Boolean> ")"
+                  <Block>
+
+      <For> ::= <Token-for>
+                "(" <Optional-command> ";" <Boolean> ";" <Optional-command> ")"
+                <Block>
+      <Optional-command> ::= <Needs-semicolon> | ""
+
+      <Variable-dec-or-def> ::= <Type-and-name> <Optional-assignment>
+
+      <Assignment> ::= <Identifier> <Assignment-operation>
+      <Optional-assignment> ::= <Assignment-operation> | ""
+      <Assignment-operation> ::= "=" <Parameter>
+
+      <Type-and-name> ::= <Identifier> <Identifier>
+
+      <Block> ::= "{" <Program> "}"
 
       <Function-call> ::= <Identifier> "(" <Parameter-list> ")"
 
-      <Parameter-list> ::= <Parameter> <Parameter-list> | ""
-      <Parameter> ::= <Identifier> | <Boolean> | <Math> | <Function-call>
+      <Identifier> ::= <Token-identifier>
+      <Identifier-list> ::= <Identifier> "," <Identifier-list>
+                          | <Identifier>
+                          | ""
 
+      <Parameter> ::= <Identifier>
+                    | <Boolean>
+                    | <Math>
+                    | <Function-call>
+                    | <Token-string-literal>
+                    | <Token-char-literal>
+      <Parameter-list> ::= <Parameter> "," <Parameter-list>
+                         | <Parameter>
+                         | ""
+
+      // Boolean
       <Boolean> ::= <Boolean> <bool-in-op> <Boolean>
                   | <bool-pre-op> <Boolean>
                   | "(" <Boolean> ")"
@@ -48,8 +93,9 @@ class CLang extends Language {
                      | ">" +66+ =left=
                      | <Token-and> +65+ =left=
                      | <Token-or> +65+ =left=
-      <Boolean-literal> ::= "true" | "false" | <Math>
+      <Boolean-literal> ::= <Math> | <Identifier>
 
+      // Math
       <Math> ::= <Math> <math-in-op> <Math>
                | <math-pre-op> <Math>
                | "(" <Math> ")"
@@ -61,7 +107,7 @@ class CLang extends Language {
                      | "*" +55+ =left=
                      | "/" +55+ =left=
                      | "^" +54+ =right=
-      <Math-literal> ::= <Token-integer> | <Token-float>
+      <Math-literal> ::= <Token-integer> | <Token-float> | <Identifier>
     `)
 
     fs.writeFile('c.json', c.save(), 'utf8', () => {})
@@ -79,21 +125,9 @@ class CLang extends Language {
     try {
       let sppf = this.buildSPPF(code)
 
-      sppf.transform([(node) => {
-        if (node.item.name === 'Parameter') {
-          node.arcs = node.arcs.filter(packed => {
-            const packedArcs = packed.flattenArcs()
-            if (packedArcs[0].item.name === 'Boolean') {
-              return false
-            }
+      // sppf.transform([], true)
 
-            return true
-          })
-        }
-
-        return false
-      }], true)
-
+      writeGraph(sppf.root)
       const trees = sppf.trees
 
       const toString = (node, seen = []) => {
@@ -290,9 +324,9 @@ class CLang extends Language {
 
       trees.forEach(tree => {
         console.log(`${code} | ${toString(tree)}`);
-        const result = exec(tree)
-        console.log(`Result: ${result}`)
-        console.log('=================================================')
+        // const result = exec(tree)
+        // console.log(`Result: ${result}`)
+        // console.log('=================================================')
       })
     } catch (e) {
       console.log(e)
