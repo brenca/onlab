@@ -1,4 +1,10 @@
-const C = require('./lang/c2')
+const C = require('./lang/c2');
+
+// let x = 0
+// setInterval(() => {
+//   console.log(x++);
+// }, 200)
+
 const Clang = C.fromBNF()
 // const Clang = C.fromSave()
 
@@ -21,10 +27,16 @@ const Clang = C.fromBNF()
 
 // Clang.execute(`if ( 1.2 ) if ( 1.3 ) 1.4 else 1.5`)
 // Clang.execute(`int i;`)
-Clang.execute(`void main(int x) {
-  int z;
+Clang.execute(`
+
+typedef int myint, integer;
+
+void main(int x) {
+  integer z;
   for(z = 0; z < 10; z++) {
-    printf(z);
+    printf(z, 2.2);
   }
   return z;
-}`)
+}
+
+`)

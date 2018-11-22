@@ -1,0 +1,46 @@
+digraph g {
+"99001e91-5207-4132-be0f-6876ec9fc271" [label=<block-item ::= 'declaration'●<BR /><FONT POINT-SIZE="10">f9b61669</FONT>>  shape="oval"]
+"4cf82b29-03ff-410d-b76e-56eafe003af8" [label=<('declaration', 30, 35)<BR /><FONT POINT-SIZE="10">2e4262aa</FONT>>  shape="box" style="rounded"]
+"38168eab-b05c-4290-8d31-1f0fb416d7f5" [label=<('declaration-specifiers', 30, 31)<BR /><FONT POINT-SIZE="10">53025700</FONT>>  shape="box" style="rounded"]
+"3b2cbe7b-b881-4b20-92f3-d1c02e8c4387" [label=<('type-specifier', 30, 31)<BR /><FONT POINT-SIZE="10">de88180b</FONT>>  shape="box" style="rounded"]
+"c89c74b0-115e-438d-90f1-5d54036201ae" [label=<('printf', 30, 31)<BR /><FONT POINT-SIZE="10">f59da733</FONT>>  shape="box" style="rounded"]
+"64944a71-fd85-4884-bb3c-1327a9025336" [label=<('declaration' ::= 'declaration-specifiers' 'init-declarator-list'● ';', 31, 35)<BR /><FONT POINT-SIZE="10">ee1869d5</FONT>>  shape="box"]
+"67feb125-5799-4eaa-a4c8-e54e6639f3d9" [label=<('init-declarator-list', 31, 34)<BR /><FONT POINT-SIZE="10">65cbc32d</FONT>>  shape="box" style="rounded"]
+"13e025bc-8ef2-4bdd-9c3a-40d90ee05857" [label=<('init-declarator', 31, 34)<BR /><FONT POINT-SIZE="10">736c6404</FONT>>  shape="box" style="rounded"]
+"28cadaa0-3a86-4a28-a457-25f11a85f8a3" [label=<('declarator', 31, 34)<BR /><FONT POINT-SIZE="10">7dcbab6e</FONT>>  shape="box" style="rounded"]
+"a6fc9997-e901-41f1-ad21-be8ce9d0c159" [label=<('direct-declarator', 31, 34)<BR /><FONT POINT-SIZE="10">c46d3f46</FONT>>  shape="box" style="rounded"]
+"a96fca61-49a7-4322-ba66-9f4a1549bd5e" [label=<('(', 31, 32)<BR /><FONT POINT-SIZE="10">3f4e8e94</FONT>>  shape="box" style="rounded"]
+"e6cf10fe-8f9d-4267-815d-9760f1bcb46f" [label=<('direct-declarator' ::= '(' 'declarator'● ')', 32, 34)<BR /><FONT POINT-SIZE="10">23c6cd23</FONT>>  shape="box"]
+"1c16b7c5-c172-4aba-a5e1-18200d292361" [label=<('declarator', 32, 33)<BR /><FONT POINT-SIZE="10">cd867626</FONT>>  shape="box" style="rounded"]
+"f91b9efb-8f42-4f7b-9470-f28d754560fd" [label=<('direct-declarator', 32, 33)<BR /><FONT POINT-SIZE="10">9c65c3cc</FONT>>  shape="box" style="rounded"]
+"c48de1e7-28bd-4f6d-bd48-1952fcab84c2" [label=<('z', 32, 33)<BR /><FONT POINT-SIZE="10">65cf0fe0</FONT>>  shape="box" style="rounded"]
+"173a778c-bcf0-40d7-946e-d57a6ab9f718" [label=<(')', 33, 34)<BR /><FONT POINT-SIZE="10">eefa44fa</FONT>>  shape="box" style="rounded"]
+"e0f72cf7-d5b5-471f-b419-c2f135065ece" [label=<(';', 34, 35)<BR /><FONT POINT-SIZE="10">533f3560</FONT>>  shape="box" style="rounded"]
+"99001e91-5207-4132-be0f-6876ec9fc271" -> "4cf82b29-03ff-410d-b76e-56eafe003af8" [label="0"]
+"4cf82b29-03ff-410d-b76e-56eafe003af8" -> "38168eab-b05c-4290-8d31-1f0fb416d7f5" [label="0"]
+"4cf82b29-03ff-410d-b76e-56eafe003af8" -> "64944a71-fd85-4884-bb3c-1327a9025336" [label="1"]
+"38168eab-b05c-4290-8d31-1f0fb416d7f5" -> "3b2cbe7b-b881-4b20-92f3-d1c02e8c4387" [label="0"]
+"3b2cbe7b-b881-4b20-92f3-d1c02e8c4387" -> "c89c74b0-115e-438d-90f1-5d54036201ae" [label="0"]
+"64944a71-fd85-4884-bb3c-1327a9025336" -> "67feb125-5799-4eaa-a4c8-e54e6639f3d9" [label="0"]
+"64944a71-fd85-4884-bb3c-1327a9025336" -> "e0f72cf7-d5b5-471f-b419-c2f135065ece" [label="1"]
+"67feb125-5799-4eaa-a4c8-e54e6639f3d9" -> "13e025bc-8ef2-4bdd-9c3a-40d90ee05857" [label="0"]
+"13e025bc-8ef2-4bdd-9c3a-40d90ee05857" -> "28cadaa0-3a86-4a28-a457-25f11a85f8a3" [label="0"]
+"28cadaa0-3a86-4a28-a457-25f11a85f8a3" -> "a6fc9997-e901-41f1-ad21-be8ce9d0c159" [label="0"]
+"a6fc9997-e901-41f1-ad21-be8ce9d0c159" -> "a96fca61-49a7-4322-ba66-9f4a1549bd5e" [label="0"]
+"a6fc9997-e901-41f1-ad21-be8ce9d0c159" -> "e6cf10fe-8f9d-4267-815d-9760f1bcb46f" [label="1"]
+"e6cf10fe-8f9d-4267-815d-9760f1bcb46f" -> "1c16b7c5-c172-4aba-a5e1-18200d292361" [label="0"]
+"e6cf10fe-8f9d-4267-815d-9760f1bcb46f" -> "173a778c-bcf0-40d7-946e-d57a6ab9f718" [label="1"]
+"1c16b7c5-c172-4aba-a5e1-18200d292361" -> "f91b9efb-8f42-4f7b-9470-f28d754560fd" [label="0"]
+"f91b9efb-8f42-4f7b-9470-f28d754560fd" -> "c48de1e7-28bd-4f6d-bd48-1952fcab84c2" [label="0"]
+{rank = same; "99001e91-5207-4132-be0f-6876ec9fc271"}
+{rank = same; "4cf82b29-03ff-410d-b76e-56eafe003af8"}
+{rank = same; "38168eab-b05c-4290-8d31-1f0fb416d7f5"; "64944a71-fd85-4884-bb3c-1327a9025336"}
+{rank = same; "3b2cbe7b-b881-4b20-92f3-d1c02e8c4387"; "67feb125-5799-4eaa-a4c8-e54e6639f3d9"}
+{rank = same; "13e025bc-8ef2-4bdd-9c3a-40d90ee05857"}
+{rank = same; "28cadaa0-3a86-4a28-a457-25f11a85f8a3"}
+{rank = same; "a6fc9997-e901-41f1-ad21-be8ce9d0c159"}
+{rank = same; "e6cf10fe-8f9d-4267-815d-9760f1bcb46f"}
+{rank = same; "1c16b7c5-c172-4aba-a5e1-18200d292361"}
+{rank = same; "f91b9efb-8f42-4f7b-9470-f28d754560fd"}
+{rank = same; "c89c74b0-115e-438d-90f1-5d54036201ae"; "a96fca61-49a7-4322-ba66-9f4a1549bd5e"; "c48de1e7-28bd-4f6d-bd48-1952fcab84c2"; "173a778c-bcf0-40d7-946e-d57a6ab9f718"; "e0f72cf7-d5b5-471f-b419-c2f135065ece"}
+}

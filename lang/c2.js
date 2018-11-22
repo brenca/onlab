@@ -4,6 +4,42 @@ const fs = require('fs')
 const { Lexer, Parser } = Language
 const { writeGraph } = require('../lib/utils')
 
+class Scope {
+  constructor(node) {
+    this.node = node
+    this.parent = node.scope
+    node.scope = this
+
+    this.types = {}
+    this.enums = {}
+    this.variables = {}
+  }
+
+  findType(name) {
+    if (!this.parent) {
+      return this.types[name]
+    } else {
+      const local = this.types[name]
+      if (!local) {
+        return this.parent.findType(name)
+      } else {
+        return local
+      }
+    }
+  }
+}
+
+class ProgramScope extends Scope {
+  constructor(node) {
+    node.scope = null
+    super(node)
+
+    this.types = {
+      int: {}
+    }
+  }
+}
+
 class CLang extends Language {
   constructor() {
     super()
@@ -30,52 +66,52 @@ class CLang extends Language {
     const WS = `[ \\t\\v\\n\\f]`
 
     c.lexer.addTokenClasses([
-      new Lexer.TokenClass('auto', /auto/u),
-      new Lexer.TokenClass('break', /break/u),
-      new Lexer.TokenClass('case', /case/u),
-      new Lexer.TokenClass('char', /char/u),
-      new Lexer.TokenClass('const', /const/u),
-      new Lexer.TokenClass('continue', /continue/u),
-      new Lexer.TokenClass('default', /default/u),
-      new Lexer.TokenClass('do', /do/u),
-      new Lexer.TokenClass('double', /double/u),
-      new Lexer.TokenClass('else', /else/u),
-      new Lexer.TokenClass('enum', /enum/u),
-      new Lexer.TokenClass('extern', /extern/u),
-      new Lexer.TokenClass('float', /float/u),
-      new Lexer.TokenClass('for', /for/u),
-      new Lexer.TokenClass('goto', /goto/u),
-      new Lexer.TokenClass('if', /if/u),
-      new Lexer.TokenClass('inline', /inline/u),
-      new Lexer.TokenClass('int', /int/u),
-      new Lexer.TokenClass('long', /long/u),
-      new Lexer.TokenClass('register', /register/u),
-      new Lexer.TokenClass('restrict', /restrict/u),
-      new Lexer.TokenClass('return', /return/u),
-      new Lexer.TokenClass('short', /short/u),
-      new Lexer.TokenClass('signed', /signed/u),
-      new Lexer.TokenClass('sizeof', /sizeof/u),
-      new Lexer.TokenClass('static', /static/u),
-      new Lexer.TokenClass('struct', /struct/u),
-      new Lexer.TokenClass('switch', /switch/u),
-      new Lexer.TokenClass('typedef', /typedef/u),
-      new Lexer.TokenClass('union', /union/u),
-      new Lexer.TokenClass('unsigned', /unsigned/u),
-      new Lexer.TokenClass('void', /void/u),
-      new Lexer.TokenClass('volatile', /volatile/u),
-      new Lexer.TokenClass('while', /while/u),
+      new Lexer.TokenClass('auto', /auto(?!\w)/ui),
+      new Lexer.TokenClass('break', /break(?!\w)/ui),
+      new Lexer.TokenClass('case', /case(?!\w)/ui),
+      new Lexer.TokenClass('char', /char(?!\w)/ui),
+      new Lexer.TokenClass('const', /const(?!\w)/ui),
+      new Lexer.TokenClass('continue', /continue(?!\w)/ui),
+      new Lexer.TokenClass('default', /default(?!\w)/ui),
+      new Lexer.TokenClass('do', /do(?!\w)/ui),
+      new Lexer.TokenClass('double', /double(?!\w)/ui),
+      new Lexer.TokenClass('else', /else(?!\w)/ui),
+      new Lexer.TokenClass('enum', /enum(?!\w)/ui),
+      new Lexer.TokenClass('extern', /extern(?!\w)/ui),
+      new Lexer.TokenClass('float', /float(?!\w)/ui),
+      new Lexer.TokenClass('for', /for(?!\w)/ui),
+      new Lexer.TokenClass('goto', /goto(?!\w)/ui),
+      new Lexer.TokenClass('if', /if(?!\w)/ui),
+      new Lexer.TokenClass('inline', /inline(?!\w)/ui),
+      new Lexer.TokenClass('int', /int(?!\w)/ui),
+      new Lexer.TokenClass('long', /long(?!\w)/ui),
+      new Lexer.TokenClass('register', /register(?!\w)/ui),
+      new Lexer.TokenClass('restrict', /restrict(?!\w)/ui),
+      new Lexer.TokenClass('return', /return(?!\w)/ui),
+      new Lexer.TokenClass('short', /short(?!\w)/ui),
+      new Lexer.TokenClass('signed', /signed(?!\w)/ui),
+      new Lexer.TokenClass('sizeof', /sizeof(?!\w)/ui),
+      new Lexer.TokenClass('static', /static(?!\w)/ui),
+      new Lexer.TokenClass('struct', /struct(?!\w)/ui),
+      new Lexer.TokenClass('switch', /switch(?!\w)/ui),
+      new Lexer.TokenClass('typedef', /typedef(?!\w)/ui),
+      new Lexer.TokenClass('union', /uinion(?!\w)/ui),
+      new Lexer.TokenClass('unsigned', /uinsigned(?!\w)/ui),
+      new Lexer.TokenClass('void', /void(?!\w)/ui),
+      new Lexer.TokenClass('volatile', /volatile(?!\w)/ui),
+      new Lexer.TokenClass('while', /while(?!\w)/ui),
 
-      new Lexer.TokenClass('alignas', /_Alignas/u),
-      new Lexer.TokenClass('alignof', /_Alignof/u),
-      new Lexer.TokenClass('atomic', /_Atomic/u),
-      new Lexer.TokenClass('bool', /_Bool/u),
-      new Lexer.TokenClass('complex', /_Complex/u),
-      new Lexer.TokenClass('generic', /_Generic/u),
-      new Lexer.TokenClass('imaginary', /_Imaginary/u),
-      new Lexer.TokenClass('noreturn', /_Noreturn/u),
-      new Lexer.TokenClass('static-assert', /_Static_assert/u),
-      new Lexer.TokenClass('thread-local', /_Thread_local/u),
-      new Lexer.TokenClass('func-name', /__func__/u),
+      new Lexer.TokenClass('alignas', /_Alignas(?!\w)/ui),
+      new Lexer.TokenClass('alignof', /_Alignof(?!\w)/ui),
+      new Lexer.TokenClass('atomic', /_Atomic(?!\w)/ui),
+      new Lexer.TokenClass('bool', /_Bool(?!\w)/ui),
+      new Lexer.TokenClass('complex', /_Complex(?!\w)/ui),
+      new Lexer.TokenClass('generic', /_Generic(?!\w)/ui),
+      new Lexer.TokenClass('imaginary', /_Imaginary(?!\w)/ui),
+      new Lexer.TokenClass('noreturn', /_Noreturn(?!\w)/ui),
+      new Lexer.TokenClass('static-assert', /_Static_assert(?!\w)/ui),
+      new Lexer.TokenClass('thread-local', /_Thread_local(?!\w)/ui),
+      new Lexer.TokenClass('func-name', /__func__(?!\w)/ui),
 
       new Lexer.TokenClass('float-dec', new RegExp(
         `${D}*\\.${D}+${E}?${FS}?`, 'u')),
@@ -129,8 +165,8 @@ class CLang extends Language {
       new Lexer.TokenClass('left-square', /(\[)|(<:)/ui),
       new Lexer.TokenClass('right-square', /(\])|(:>)/ui),
 
-      new Lexer.TokenClass('identifier', /(?=[a-z_])[a-z0-9_]*(?!\w)/iu),
-      new Lexer.TokenClass('char', /\S/iu)
+      new Lexer.TokenClass('identifier', /(?=[a-z_])[a-z0-9_]*(?!\w)/ui),
+      new Lexer.TokenClass('char', /\S/ui)
     ])
 
     c.parser.setupFromBNF(`
@@ -163,7 +199,7 @@ class CLang extends Language {
 
       <constant> ::= <integer-constant>
         | <float-constant>
-        | <Token-identifier> // enumeration-constant
+        | <enumeration-constant>
 
       <integer-constant> ::= <Token-integer-hex>
         | <Token-integer-dec>
@@ -517,25 +553,28 @@ class CLang extends Language {
       	| <declaration-list> <declaration>
     `)
 
-    fs.writeFile('c.json', c.save(), 'utf8', () => {})
+    fs.writeFile('c.parser', c.save(), () => {})
 
     return c
   }
 
   static fromSave() {
     const c = new CLang()
-    c.load(fs.readFileSync('c.json', 'utf8'))
+    c.load(fs.readFileSync('c.parser'))
     return c
   }
 
   execute(code) {
     try {
-      let sppf = this.buildSPPF(code)
+      const sppf = this.buildSPPF(code)
+      this.executeSPPF(sppf)
+    } catch (e) {
+      throw e
+    }
+  }
 
-      writeGraph(sppf.root)
-      const trees = sppf.trees
-      console.log(trees.length);
-
+  executeSPPF(sppf) {
+    try {
       const toString = (node, seen = []) => {
         seen = seen.concat(node)
 
@@ -557,6 +596,150 @@ class CLang extends Language {
         }
       }
 
+      const getDeclarationSpecifierList = (node) => {
+        if (node.ruleName === 'declaration-specifiers') {
+          const specifiers = []
+
+          do {
+            specifiers.push(node.arcs[0])
+            node = node.arcs[1]
+          } while (node && node.ruleName === 'declaration-specifiers')
+
+          return specifiers
+        } else {
+          return []
+        }
+      }
+
+      const getPreList = (ruleName, node) => {
+        if (node.ruleName === ruleName) {
+          const declarators = []
+
+          do {
+            const arcs = node.flattenArcs()
+            declarators.unshift(arcs[arcs.length - 1])
+            node = arcs[0]
+          } while (node && node.ruleName === ruleName)
+
+          return declarators
+        } else {
+          return []
+        }
+      }
+
+      sppf.transform([(node) => {
+        switch (node.ruleName) {
+          case 'declaration':
+          case 'parameter-declaration':
+          case 'function-definition': {
+            node.arcs = node.arcs.filter(arc => {
+              const specifiers = getDeclarationSpecifierList(arc.arcs[0])
+
+              const typeSpecifierCount = specifiers.reduce((count, spec) => {
+                if (spec.ruleName === 'type-specifier') {
+                  return count + 1
+                } else {
+                  return count
+                }
+              }, 0)
+
+              if (typeSpecifierCount > 1) {
+                return false
+              }
+
+              return true
+            })
+          } break
+          default: {
+            node.arcs.forEach((arc, i) => {
+              writeGraph(arc, `${node.ruleName}_${i}`)
+            })
+          }
+        }
+      }])
+
+      new ProgramScope(sppf.root)
+      sppf.root.traverse((node) => {
+        switch (node.ruleName) {
+          case 'declaration': {
+            const specifiers = getDeclarationSpecifierList(node.arcs[0])
+            const typenameSpec = specifiers.find(
+              spec => spec.ruleName === 'type-specifier')
+
+            if (typenameSpec) {
+              const descendants = typenameSpec.getDirectDescendants()
+              const typename = descendants[descendants.length - 1].item.value
+
+              if (node.scope.findType(typename)) {
+
+                const scsps = specifiers.filter(
+                  spec => spec.ruleName === 'storage-class-specifier')
+                if (scsps.find(s => s.arcs[0].ruleName === 'typedef')) {
+                  const initDeclarators =
+                    getPreList('init-declarator-list', node.flattenArcs()[1])
+
+                  initDeclarators.forEach(declarator => {
+                    const descendants = declarator.getDirectDescendants()
+                    const name = descendants[descendants.length - 1].item.value
+
+                    node.scope.types[name] = node.scope.findType(typename)
+                  })
+                }
+
+              } else {
+                const scopeOwner = node.scope.node
+                if (scopeOwner instanceof Parser.SPPF.PackedNode) {
+                  scopeOwner.parent.arcs = scopeOwner.parent.arcs.filter(
+                    a => a !== scopeOwner)
+                  // maybe merge scopes here
+                } else {
+                  console.log(`type error '${typename}'`)
+                }
+              }
+            }
+          } break
+          case 'postfix-expression': {
+            const arcs = node.flattenArcs()
+
+            // function call
+            if (arcs.length === 4 &&
+                arcs[0].ruleName === 'postfix-expression' &&
+                arcs[2].ruleName === 'argument-expression-list') {
+              const descendants = arcs[0].getDirectDescendants()
+              const functionName =
+                descendants[descendants.length - 1].item.value
+
+              const arglist = getPreList('argument-expression-list', arcs[2])
+
+              console.log(functionName)
+              arglist.forEach(arg => {
+                const descendants = arg.getDirectDescendants()
+
+                console.log(descendants[descendants.length - 1].item.value);
+              })
+            }
+
+            // console.log(node.flattenArcs().map(a => a.ruleName));
+          } break
+        }
+
+        node.arcs.forEach(arc => {
+          arc.scope = node.scope
+
+          if (arc instanceof Parser.SPPF.PackedNode) {
+            new Scope(arc)
+          } else if (arc.ruleName === 'compound-statement') {
+            if (arc instanceof Parser.SPPF.SymbolNode) {
+              new Scope(arc)
+            }
+          }
+        })
+      })
+
+      writeGraph(sppf.root)
+      const trees = sppf.trees
+      console.log(trees.length);
+
       const exec = (node) => {
         const resolve = (arcs) => {
           return arcs.map(arc => {
@@ -575,7 +758,7 @@ class CLang extends Language {
       }
 
       trees.forEach(tree => {
-        console.log(`${code} | ${toString(tree)}`);
+        // console.log(`${code} | ${toString(tree)}`);
         // const result = exec(tree)
         // console.log(`Result: ${result}`)
         // console.log('=================================================')
