@@ -1,11 +1,7 @@
 const Test = require('./lib/test')
 const test = new Test()
 
-// test.execute(`
-//   to asd :h
-//     print -:h
-//   end
-// `)
+test.execute(`3*4/2*4`)
 
 /*
 

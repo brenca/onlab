@@ -51,7 +51,7 @@ class JSONLang extends Language {
 
   static fromSave() {
     const json = new JSONLang()
-    json.load(fs.readFileSync('json.json', 'utf8'))
+    json.load(fs.readFileSync('json.parser', 'utf8'))
     return json
   }
 

@@ -35,8 +35,16 @@ class ProgramScope extends Scope {
     super(node)
 
     this.types = {
-      int: {}
+      int: {},
+      void: {}
     }
+  }
+}
+
+class Variable {
+  constructor(type, name) {
+    this.type = type
+    this.name = name
   }
 }
 
@@ -48,22 +56,21 @@ class CLang extends Language {
   static fromBNF() {
     const c = new CLang()
 
-    // TODO: clean up these names gsus
-    const O = `[0-7]`
-    const D = `[0-9]`
-    const NZ = `[1-9]`
-    const L = `[a-zA-Z_]`
-    const A = `[a-zA-Z_0-9]`
-    const H = `[a-fA-F0-9]`
-    const HP = `(0[xX])`
-    const E = `([Ee][+-]?${D}+)`
-    const P = `([Pp][+-]?${D}+)`
-    const FS = `(f|F|l|L)`
-    const IS = `(((u|U)(l|L|ll|LL)?)|((l|L|ll|LL)(u|U)?))`
-    const CP = `(u|U|L)`
-    const SP = `(u8|u|U|L)`
-    const ES = `(\\\\(['"\\?\\\\abfnrtv]|[0-7]{1,3}|x[a-fA-F0-9]+))`
-    const WS = `[ \\t\\v\\n\\f]`
+    const Octal = `[0-7]`
+    const Decimal = `[0-9]`
+    const NonZero = `[1-9]`
+    const Letter = `[a-zA-Z_]`
+    const Alphanumeric = `[a-zA-Z_0-9]`
+    const Hex = `[a-fA-F0-9]`
+    const HexPrefix = `(0[xX])`
+    const E = `([Ee][+-]?${Decimal}+)`
+    const P = `([Pp][+-]?${Decimal}+)`
+    const FloatSpecifier = `(f|F|l|L)`
+    const IntegerSpecifier = `(((u|U)(l|L|ll|LL)?)|((l|L|ll|LL)(u|U)?))`
+    const CharPrefix = `(u|U|L)`
+    const StringPrefix = `(u8|u|U|L)`
+    const EscapeSequence = `(\\\\(['"\\?\\\\abfnrtv]|${Octal}{1,3}|x${Hex}+))`
+    const WhiteSpace = `[ \\t\\v\\n\\f]`
 
     c.lexer.addTokenClasses([
       new Lexer.TokenClass('auto', /auto(?!\w)/ui),
@@ -114,29 +121,30 @@ class CLang extends Language {
       new Lexer.TokenClass('func-name', /__func__(?!\w)/ui),
 
       new Lexer.TokenClass('float-dec', new RegExp(
-        `${D}*\\.${D}+${E}?${FS}?`, 'u')),
+        `${Decimal}*\\.${Decimal}+${E}?${FloatSpecifier}?`, 'u')),
       new Lexer.TokenClass('float-dec-e', new RegExp(
-        `${D}+${E}${FS}?`, 'u')),
+        `${Decimal}+${E}${FloatSpecifier}?`, 'u')),
       new Lexer.TokenClass('float-dec-dot-e', new RegExp(
-        `${D}+\\.${E}?${FS}?`, 'u')),
+        `${Decimal}+\\.${E}?${FloatSpecifier}?`, 'u')),
       new Lexer.TokenClass('float-hex', new RegExp(
-        `${HP}${H}*\\.${H}+${P}${FS}?`, 'u')),
+        `${HexPrefix}${Hex}*\\.${Hex}+${P}${FloatSpecifier}?`, 'u')),
       new Lexer.TokenClass('float-hex-p', new RegExp(
-        `${HP}${H}+${P}${FS}?`, 'u')),
+        `${HexPrefix}${Hex}+${P}${FloatSpecifier}?`, 'u')),
       new Lexer.TokenClass('float-hex-dot-p', new RegExp(
-        `${HP}${H}+\\.${P}${FS}?`, 'u')),
+        `${HexPrefix}${Hex}+\\.${P}${FloatSpecifier}?`, 'u')),
 
       new Lexer.TokenClass('integer-hex', new RegExp(
-        `${HP}${H}+${IS}?`, 'u')),
+        `${HexPrefix}${Hex}+${IntegerSpecifier}?`, 'u')),
       new Lexer.TokenClass('integer-dec', new RegExp(
-        `${NZ}${D}*${IS}?`, 'u')),
+        `${NonZero}${Decimal}*${IntegerSpecifier}?`, 'u')),
       new Lexer.TokenClass('integer-oct', new RegExp(
-        `0${O}*${IS}?`, 'u')),
+        `0${Octal}*${IntegerSpecifier}?`, 'u')),
       new Lexer.TokenClass('integer-chr', new RegExp(
-        `${CP}?'([^'\\\\\\n]|${ES})+'`, 'u')),
+        `${CharPrefix}?'([^'\\\\\\n]|${EscapeSequence})+'`, 'u')),
 
       new Lexer.TokenClass('string', new RegExp(
-        `(${SP}?"([^"\\\\\\n]|${ES})*"${WS}*)+`, 'u')),
+        `(${StringPrefix}?"([^"\\\\\\n]|${EscapeSequence})*"${WhiteSpace}*)+`,
+        'u')),
 
       new Lexer.TokenClass('ellipsis', /\.\.\./ui),
       new Lexer.TokenClass('right-assign', />>=/ui),
@@ -165,29 +173,12 @@ class CLang extends Language {
       new Lexer.TokenClass('left-square', /(\[)|(<:)/ui),
       new Lexer.TokenClass('right-square', /(\])|(:>)/ui),
 
-      new Lexer.TokenClass('identifier', /(?=[a-z_])[a-z0-9_]*(?!\w)/ui),
+      new Lexer.TokenClass('identifier', new RegExp(
+        `(?=${Letter})${Alphanumeric}*(?!\\w)`, 'u')),
       new Lexer.TokenClass('char', /\S/ui)
     ])
 
     c.parser.setupFromBNF(`
-      // <S> ::= <E> "=" <E> | "f"
-      // <E> ::= <T> | <E> "+" <T>
-      // <T> ::= "f" | <T> "*" "f"
-
-      // <S> ::= <E>
-      // <E> ::= <T> | "(" <E> ")"
-      // <T> ::= "n" | "+" <T> | <T> "+" "n"
-
-      // <E> ::= <T> "+" <E> | <T>
-      // <T> ::= "n"
-
-      // <S> ::= "a" <B> <C>
-      // <B> ::= "b" | ""
-      // <C> ::= "c" | ""
-
-      // <S> ::= "a" <C>
-      // <C> ::= ""
-
       <translation-unit> ::= <external-declaration>
       	| <translation-unit> <external-declaration>
 
@@ -564,14 +555,14 @@ class CLang extends Language {
     return c
   }
 
-  execute(code) {
-    try {
-      const sppf = this.buildSPPF(code)
-      this.executeSPPF(sppf)
-    } catch (e) {
-      throw e
-    }
-  }
+  // execute(code) {
+  //   try {
+  //     const sppf = this.buildSPPF(code)
+  //     this.executeSPPF(sppf)
+  //   } catch (e) {
+  //     throw e
+  //   }
+  // }
 
   executeSPPF(sppf) {
     try {
@@ -627,6 +618,7 @@ class CLang extends Language {
         }
       }
 
+      // disallow "implicit int"
       sppf.transform([(node) => {
         switch (node.ruleName) {
           case 'declaration':
@@ -659,6 +651,7 @@ class CLang extends Language {
       }])
 
       new ProgramScope(sppf.root)
+      // checking pass to simulate compiled behaviour
       sppf.root.traverse((node) => {
         switch (node.ruleName) {
           case 'declaration': {
@@ -671,9 +664,9 @@ class CLang extends Language {
               const typename = descendants[descendants.length - 1].item.value
 
               if (node.scope.findType(typename)) {
-
                 const scsps = specifiers.filter(
                   spec => spec.ruleName === 'storage-class-specifier')
+                // Typedef
                 if (scsps.find(s => s.arcs[0].ruleName === 'typedef')) {
                   const initDeclarators =
                     getPreList('init-declarator-list', node.flattenArcs()[1])
@@ -683,12 +676,36 @@ class CLang extends Language {
                     const name = descendants[descendants.length - 1].item.value
 
                     node.scope.types[name] = node.scope.findType(typename)
+                    console.log('type alias ', name, typename);
                   })
+                // Variable def
+                } else {
+                  node.flattenArcs().slice(0, -1).forEach(arc => {
+                    if (arc instanceof Parser.SPPF.SymbolNode) {
+                      const descendants = arc.getDirectDescendants()
+                      const typeSpec = descendants.find(d => {
+                        return d.ruleName === 'type-specifier'
+                      })
+
+                      if (typeSpec) {
+                        const descendants = typeSpec.getDirectDescendants()
+                        const name = descendants[descendants.length - 1].item.value
+
+                        if (node.scope.findType(name)) {
+                          console.log('variable with type ', name);
+                        } else {
+                          console.log(`type error '${name}'`)
+                        }
+                      }
+                    }
+                  })
+
+
                 }
 
               } else {
                 const scopeOwner = node.scope.node
-                if (scopeOwner instanceof Parser.SPPF.PackedNode) {
+                if (scopeOwner instanceof Parser.SPPF.PackedNode && scopeOwner.parent.arcs.length > 1) {
                   scopeOwner.parent.arcs = scopeOwner.parent.arcs.filter(
                     a => a !== scopeOwner)
                   // maybe merge scopes here
@@ -698,29 +715,24 @@ class CLang extends Language {
               }
             }
           } break
-          case 'postfix-expression': {
-            const arcs = node.flattenArcs()
+          case 'function-definition': {
+            if (node instanceof Parser.SPPF.SymbolNode) {
+              const specifiers = getDeclarationSpecifierList(node.arcs[0])
+              const typenameSpec = specifiers.find(
+                spec => spec.ruleName === 'type-specifier')
 
-            // function call
-            if (arcs.length === 4 &&
-                arcs[0].ruleName === 'postfix-expression' &&
-                arcs[2].ruleName === 'argument-expression-list') {
-              const descendants = arcs[0].getDirectDescendants()
-              const functionName =
-                descendants[descendants.length - 1].item.value
+                if (typenameSpec) {
+                  const descendants = typenameSpec.getDirectDescendants()
+                  const typename = descendants[descendants.length - 1].item.value
 
-              const arglist = getPreList('argument-expression-list', arcs[2])
-
-              console.log(functionName)
-              arglist.forEach(arg => {
-                const descendants = arg.getDirectDescendants()
-
-                console.log(descendants[descendants.length - 1].item.value);
-              })
+                  if (node.scope.findType(typename)) {
+                    console.log('function with return type ', typename);
+                  } else {
+                    console.log(`type error '${typename}'`)
+                  }
+                }
             }
-
-            // console.log(node.flattenArcs().map(a => a.ruleName));
-          } break
+          }
         }
 
         node.arcs.forEach(arc => {
@@ -736,9 +748,48 @@ class CLang extends Language {
         })
       })
 
-      writeGraph(sppf.root)
+
+
+
+
+
+      sppf.root.traverse((node) => {
+        switch (node.ruleName) {
+          case 'declaration': {
+
+          } break
+          case 'postfix-expression': {
+            const arcs = node.flattenArcs()
+
+            // function call
+            if (arcs.length === 4 &&
+                arcs[0].ruleName === 'postfix-expression' &&
+                arcs[2].ruleName === 'argument-expression-list') {
+              const descendants = arcs[0].getDirectDescendants()
+              const functionName =
+                descendants[descendants.length - 1].item.value
+
+              const arglist = getPreList('argument-expression-list', arcs[2])
+
+              console.log();
+              console.log("function call: ", functionName)
+              arglist.forEach(arg => {
+                const descendants = arg.getDirectDescendants()
+                const lastDescendant = descendants[descendants.length - 1].item
+
+                console.log(lastDescendant.class.name, lastDescendant.value)
+              })
+              console.log();
+            }
+
+            // console.log(node.flattenArcs().map(a => a.ruleName));
+          } break
+        }
+      })
+
       const trees = sppf.trees
       console.log(trees.length);
+      writeGraph(sppf.root, 'c')
 
       const exec = (node) => {
         const resolve = (arcs) => {

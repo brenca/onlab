@@ -1,12 +1,16 @@
 const JSONL = require('./lang/json')
-const JSONLang = JSONL.fromSave()
+const JSONLang = JSONL.fromBNF()
 
 const fs = require('fs')
 const test = fs.readFileSync('10k.json', 'utf8')
 
-// console.log(JSON.parse(test));
+console.time('JSON')
+JSON.parse(test)
+console.timeLog('JSON')
 
+console.time('JSONLang')
 JSONLang.execute(test)
+console.timeLog('JSONLang')
 
 // JSONLang.execute(JSON.stringify({
 //   whatislove: 2,
